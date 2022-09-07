@@ -1,6 +1,10 @@
-type ExampleEntity @entity {
+type Vault @entity {
+  " Smart contract address of the vault "
   id: ID!
-  count: BigInt!
-  vault: Bytes! # address
-  strategy: Bytes! # address
+
+  " Name of liquidity pool (e.g. Curve.fi DAI/USDC/USDT) "
+  name: String
+
+  " Symbol of liquidity pool (e.g. 3CRV) "
+  symbol: String
 }
