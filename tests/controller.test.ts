@@ -5,8 +5,9 @@ import {
   clearStore,
   afterAll,
   newMockCall,
+  createMockedFunction,
 } from "matchstick-as/assembly/index";
-import { AddVaultAndStrategyCall } from "../generated/Controller/Controller";
+import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
 import { Address, ethereum } from "@graphprotocol/graph-ts";
 import { handleAddVaultAndStrategy } from "../src/controller";
 
@@ -38,6 +39,16 @@ describe("Controller", () => {
         "0x0000000000000000000000000000000000000003"
       );
 
+      createMockedFunction(vaultAddress, "name", "name():(string)").returns([
+        ethereum.Value.fromString("Vault 1"),
+      ]);
+
+      createMockedFunction(
+        vaultAddress,
+        "symbol",
+        "symbol():(string)"
+      ).returns([ethereum.Value.fromString("V1")]);
+
       let call = mockCall(vaultAddress, strategyAddress);
 
       handleAddVaultAndStrategy(call);
@@ -48,6 +59,13 @@ describe("Controller", () => {
         "id",
         vaultAddress.toHexString()
       );
+      assert.fieldEquals(
+        "Vault",
+        vaultAddress.toHexString(),
+        "name",
+        "Vault 1"
+      );
+      assert.fieldEquals("Vault", vaultAddress.toHexString(), "symbol", "V1");
     });
   });
 });
