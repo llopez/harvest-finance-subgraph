@@ -1,12 +1,46 @@
-import { Address, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
-import { ERC20Contract } from "../../generated/Controller/ERC20Contract";
-import { VaultContract } from "../../generated/Controller/VaultContract";
-import { Token, Vault } from "../../generated/schema";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Vault } from "../../generated/schema";
+
+export function initializeVault(
+  address: Address,
+  name: string,
+  symbol: string,
+  inToken: Address,
+  outToken: Address,
+  depositLimit: BigInt,
+  createdTimestamp: BigInt,
+  createdBlockNumber: BigInt,
+  totalValueLockedUSD: BigDecimal,
+  inputTokenBalance: BigInt
+): Vault {
+  const id = address.toHexString();
+
+  const vault = new Vault(id);
+
+  vault.name = name;
+  vault.symbol = symbol;
+  vault.inputToken = inToken.toHexString();
+  vault.outputToken = outToken.toHexString();
+  vault.depositLimit = depositLimit;
+  vault.createdTimestamp = createdTimestamp;
+  vault.createdBlockNumber = createdBlockNumber;
+  vault.totalValueLockedUSD = totalValueLockedUSD;
+  vault.inputTokenBalance = inputTokenBalance;
+
+  return vault;
+}
 
 export function findOrInitializeVault(
   address: Address,
-  _inputToken: Address | null,
-  _outputToken: Address | null
+  name: string,
+  symbol: string,
+  inToken: Address,
+  outToken: Address,
+  depositLimit: BigInt,
+  createdTimestamp: BigInt,
+  createdBlockNumber: BigInt,
+  totalValueLockedUSD: BigDecimal,
+  inputTokenBalance: BigInt
 ): Vault {
   const id = address.toHexString();
 
@@ -14,28 +48,16 @@ export function findOrInitializeVault(
 
   if (vault) return vault;
 
-  vault = new Vault(address.toHexString());
-
-  const vaultContract = VaultContract.bind(address);
-  const underlying = vaultContract.try_underlying().value;
-  const erc20Contract = ERC20Contract.bind(underlying);
-
-  const inputToken = new Token(underlying.toHexString());
-  inputToken.name = erc20Contract.try_name().value;
-  inputToken.symbol = erc20Contract.try_symbol().value;
-  inputToken.decimals = erc20Contract.try_decimals().value;
-  inputToken.save();
-
-  const outputToken = new Token(address.toHexString());
-  outputToken.name = vaultContract.try_name().value;
-  outputToken.symbol = vaultContract.try_symbol().value;
-  outputToken.decimals = vaultContract.try_decimals().value;
-  outputToken.save();
-
-  vault.inputToken = inputToken.id;
-  vault.outputToken = outputToken.id;
-
-  vault.depositLimit = BigInt.fromI32(0);
-
-  return vault;
+  return initializeVault(
+    address,
+    name,
+    symbol,
+    inToken,
+    outToken,
+    depositLimit,
+    createdTimestamp,
+    createdBlockNumber,
+    totalValueLockedUSD,
+    inputTokenBalance
+  );
 }

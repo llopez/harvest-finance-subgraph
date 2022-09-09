@@ -5,7 +5,7 @@ import {
   afterAll,
   createMockedFunction,
 } from "matchstick-as/assembly/index";
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { handleAddVaultAndStrategy } from "../src/controller";
 import {
   mockCall,
@@ -41,13 +41,24 @@ describe("Controller", () => {
       mockERC20(inputTokenAddress, "USD Coin", "USDC", 6);
       mockERC20(vaultAddress, "FARM_USDC", "fUSDC", 6);
 
-      let call = mockCall(vaultAddress, strategyAddress);
+      const call = mockCall(vaultAddress, strategyAddress);
 
       handleAddVaultAndStrategy(call);
 
       // Vault Assertions
 
-      assertVault(vaultAddress, inputTokenAddress, "FARM_USDC", "fUSDC", null);
+      assertVault(
+        vaultAddress,
+        "FARM_USDC",
+        "fUSDC",
+        inputTokenAddress,
+        vaultAddress,
+        BigInt.fromI32(0),
+        call.block.timestamp,
+        call.block.number,
+        BigDecimal.fromString("0"),
+        BigInt.fromI32(0)
+      );
 
       // Input Token Assertions
 
