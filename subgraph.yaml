@@ -20,6 +20,8 @@ dataSources:
           file: ./abis/Controller.json
         - name: VaultContract
           file: ./abis/Vault.json
+        - name: ERC20Contract
+          file: ./abis/ERC20.json
       callHandlers:
         - function: addVaultAndStrategy(address,address)
           handler: handleAddVaultAndStrategy

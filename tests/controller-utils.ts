@@ -1,42 +1,88 @@
-import { newMockEvent } from "matchstick-as"
-import { ethereum, Address, BigInt } from "@graphprotocol/graph-ts"
-import { SharePriceChangeLog } from "../generated/Controller/Controller"
+import { Address, ethereum, BigInt } from "@graphprotocol/graph-ts";
+import { createMockedFunction, newMockCall, assert } from "matchstick-as";
+import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
 
-export function createSharePriceChangeLogEvent(
+export function mockCall(
   vault: Address,
-  strategy: Address,
-  oldSharePrice: BigInt,
-  newSharePrice: BigInt,
-  timestamp: BigInt
-): SharePriceChangeLog {
-  let sharePriceChangeLogEvent = changetype<SharePriceChangeLog>(newMockEvent())
+  strategy: Address
+): AddVaultAndStrategyCall {
+  let to = Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c");
+  let from = Address.fromString("0x0000000000000000000000000000000000000001");
+  let call = newMockCall();
+  call.to = to;
+  call.from = from;
+  call.inputValues = [
+    new ethereum.EventParam("vault", ethereum.Value.fromAddress(vault)),
+    new ethereum.EventParam("strategy", ethereum.Value.fromAddress(strategy)),
+  ];
 
-  sharePriceChangeLogEvent.parameters = new Array()
+  return changetype<AddVaultAndStrategyCall>(call);
+}
 
-  sharePriceChangeLogEvent.parameters.push(
-    new ethereum.EventParam("vault", ethereum.Value.fromAddress(vault))
-  )
-  sharePriceChangeLogEvent.parameters.push(
-    new ethereum.EventParam("strategy", ethereum.Value.fromAddress(strategy))
-  )
-  sharePriceChangeLogEvent.parameters.push(
-    new ethereum.EventParam(
-      "oldSharePrice",
-      ethereum.Value.fromUnsignedBigInt(oldSharePrice)
-    )
-  )
-  sharePriceChangeLogEvent.parameters.push(
-    new ethereum.EventParam(
-      "newSharePrice",
-      ethereum.Value.fromUnsignedBigInt(newSharePrice)
-    )
-  )
-  sharePriceChangeLogEvent.parameters.push(
-    new ethereum.EventParam(
-      "timestamp",
-      ethereum.Value.fromUnsignedBigInt(timestamp)
-    )
-  )
+export function mockERC20(
+  address: Address,
+  name: string,
+  symbol: string,
+  decimals: i32
+): void {
+  createMockedFunction(address, "name", "name():(string)").returns([
+    ethereum.Value.fromString(name),
+  ]);
+  createMockedFunction(address, "symbol", "symbol():(string)").returns([
+    ethereum.Value.fromString(symbol),
+  ]);
+  createMockedFunction(address, "decimals", "decimals():(uint8)").returns([
+    ethereum.Value.fromI32(decimals),
+  ]);
+}
 
-  return sharePriceChangeLogEvent
+export function assertERC20(
+  entity: string,
+  address: Address,
+  name: string,
+  symbol: string,
+  decimals: BigInt | null
+): void {
+  assert.fieldEquals(
+    entity,
+    address.toHexString(),
+    "id",
+    address.toHexString()
+  );
+  assert.fieldEquals(entity, address.toHexString(), "name", name);
+  assert.fieldEquals(entity, address.toHexString(), "symbol", symbol);
+
+  if (decimals)
+    assert.fieldEquals(
+      entity,
+      address.toHexString(),
+      "decimals",
+      decimals.toString()
+    );
+}
+
+export function assertToken(
+  address: Address,
+  name: string,
+  symbol: string,
+  decimals: BigInt
+): void {
+  assertERC20("Token", address, name, symbol, decimals);
+}
+
+export function assertVault(
+  address: Address,
+  inputToken: Address,
+  name: string,
+  symbol: string,
+  decimals: BigInt | null
+): void {
+  assertERC20("Vault", address, name, symbol, decimals);
+
+  assert.fieldEquals(
+    "Vault",
+    address.toHexString(),
+    "inputToken",
+    inputToken.toHexString()
+  );
 }

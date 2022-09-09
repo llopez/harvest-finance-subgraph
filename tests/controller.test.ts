@@ -1,29 +1,18 @@
 import {
-  assert,
   describe,
   test,
   clearStore,
   afterAll,
-  newMockCall,
   createMockedFunction,
 } from "matchstick-as/assembly/index";
-import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
-import { Address, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { handleAddVaultAndStrategy } from "../src/controller";
-
-function mockCall(vault: Address, strategy: Address): AddVaultAndStrategyCall {
-  let to = Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c");
-  let from = Address.fromString("0x0000000000000000000000000000000000000001");
-  let call = newMockCall();
-  call.to = to;
-  call.from = from;
-  call.inputValues = [
-    new ethereum.EventParam("vault", ethereum.Value.fromAddress(vault)),
-    new ethereum.EventParam("strategy", ethereum.Value.fromAddress(strategy)),
-  ];
-
-  return changetype<AddVaultAndStrategyCall>(call);
-}
+import {
+  mockCall,
+  mockERC20,
+  assertToken,
+  assertVault,
+} from "./controller-utils";
 
 describe("Controller", () => {
   afterAll(() => {
@@ -31,7 +20,7 @@ describe("Controller", () => {
   });
 
   describe("addVaultAndStrategy", () => {
-    test("creates Vault", () => {
+    test("creates Vault and Tokens", () => {
       let vaultAddress = Address.fromString(
         "0x0000000000000000000000000000000000000002"
       );
@@ -39,33 +28,34 @@ describe("Controller", () => {
         "0x0000000000000000000000000000000000000003"
       );
 
-      createMockedFunction(vaultAddress, "name", "name():(string)").returns([
-        ethereum.Value.fromString("Vault 1"),
-      ]);
+      const inputTokenAddress = Address.fromString(
+        "0x0000000000000000000000000000000000000004"
+      );
 
       createMockedFunction(
         vaultAddress,
-        "symbol",
-        "symbol():(string)"
-      ).returns([ethereum.Value.fromString("V1")]);
+        "underlying",
+        "underlying():(address)"
+      ).returns([ethereum.Value.fromAddress(inputTokenAddress)]);
+
+      mockERC20(inputTokenAddress, "USD Coin", "USDC", 6);
+      mockERC20(vaultAddress, "FARM_USDC", "fUSDC", 6);
 
       let call = mockCall(vaultAddress, strategyAddress);
 
       handleAddVaultAndStrategy(call);
 
-      assert.fieldEquals(
-        "Vault",
-        vaultAddress.toHexString(),
-        "id",
-        vaultAddress.toHexString()
-      );
-      assert.fieldEquals(
-        "Vault",
-        vaultAddress.toHexString(),
-        "name",
-        "Vault 1"
-      );
-      assert.fieldEquals("Vault", vaultAddress.toHexString(), "symbol", "V1");
+      // Vault Assertions
+
+      assertVault(vaultAddress, inputTokenAddress, "FARM_USDC", "fUSDC", null);
+
+      // Input Token Assertions
+
+      assertToken(inputTokenAddress, "USD Coin", "USDC", BigInt.fromI32(6));
+
+      // Output Token Assertions
+
+      assertToken(vaultAddress, "FARM_USDC", "fUSDC", BigInt.fromI32(6));
     });
   });
 });
