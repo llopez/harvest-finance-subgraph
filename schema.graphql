@@ -332,9 +332,8 @@ type Vault @entity {
   " Smart contract address of the vault "
   id: ID!
 
-  # TODO: remove comment when relation is implemented
-  # " The protocol this vault belongs to "
-  # protocol: YieldAggregator!
+  " The protocol this vault belongs to "
+  protocol: YieldAggregator!
 
   " Name of liquidity pool (e.g. Curve.fi DAI/USDC/USDT) "
   name: String

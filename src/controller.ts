@@ -2,9 +2,10 @@ import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContr
 import { VaultContract } from "../generated/Controller/VaultContract";
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
 import { Vault, VaultFee } from "../generated/schema";
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { findOrInitializeToken } from "./utils/tokens";
 import { initializeVault } from "./utils/vaults";
+import { findOrInitializeProtocol } from "./utils/protocols";
 
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   let vaultAddress = call.inputs._vault;
@@ -52,6 +53,27 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   fee.feeType = "DEPOSIT_FEE";
   fee.save();
   vault.fees = [fee.id];
+
+  const protocol = findOrInitializeProtocol(
+    Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c"),
+    "Harvest Finance",
+    "harvest-finance",
+    "0.0.1",
+    "0.0.1",
+    "0.0.1",
+    "MAINNET",
+    "YIELD",
+    BigDecimal.fromString("0"),
+    BigDecimal.fromString("0"),
+    BigDecimal.fromString("0"),
+    BigDecimal.fromString("0"),
+    BigDecimal.fromString("0"),
+    0
+  );
+
+  protocol.save();
+
+  vault.protocol = protocol.id;
 
   vault.save();
 }

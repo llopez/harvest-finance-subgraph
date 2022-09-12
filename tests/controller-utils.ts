@@ -80,28 +80,134 @@ export function assertVault(
   createdTimestamp: BigInt,
   createdBlockNumber: BigInt,
   totalValueLockedUSD: BigDecimal,
-  inputTokenBalance: BigInt
+  inputTokenBalance: BigInt,
+  protocol: string
 ): void {
   assertERC20("Vault", address, name, symbol, null);
-
   assert.fieldEquals(
     "Vault",
     address.toHexString(),
     "inputToken",
     inputToken.toHexString()
   );
-
   assert.fieldEquals(
     "Vault",
     address.toHexString(),
     "outputToken",
     outputToken.toHexString()
   );
-
   assert.fieldEquals(
     "Vault",
     address.toHexString(),
     "depositLimit",
     depositLimit.toString()
+  );
+  assert.fieldEquals(
+    "Vault",
+    address.toHexString(),
+    "createdTimestamp",
+    createdTimestamp.toString()
+  );
+  assert.fieldEquals(
+    "Vault",
+    address.toHexString(),
+    "createdBlockNumber",
+    createdBlockNumber.toString()
+  );
+  assert.fieldEquals(
+    "Vault",
+    address.toHexString(),
+    "totalValueLockedUSD",
+    totalValueLockedUSD.toString()
+  );
+  assert.fieldEquals(
+    "Vault",
+    address.toHexString(),
+    "inputTokenBalance",
+    inputTokenBalance.toString()
+  );
+  assert.fieldEquals("Vault", address.toHexString(), "protocol", protocol);
+}
+
+export function assertProtocol(
+  address: Address,
+  name: string,
+  slug: string,
+  schemaVersion: string,
+  subgraphVersion: string,
+  methodologyVersion: string,
+  network: string,
+  type: string,
+  totalValueLockedUSD: BigDecimal,
+  protocolControlledValueUSD: BigDecimal,
+  cumulativeSupplySideRevenueUSD: BigDecimal,
+  cumulativeProtocolSideRevenueUSD: BigDecimal,
+  cumulativeTotalRevenueUSD: BigDecimal,
+  cumulativeUniqueUsers: i32
+): void {
+  assert.fieldEquals("YieldAggregator", address.toHexString(), "name", name);
+  assert.fieldEquals("YieldAggregator", address.toHexString(), "slug", slug);
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "schemaVersion",
+    schemaVersion
+  );
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "subgraphVersion",
+    subgraphVersion
+  );
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "methodologyVersion",
+    methodologyVersion
+  );
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "network",
+    network
+  );
+  assert.fieldEquals("YieldAggregator", address.toHexString(), "type", type);
+
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "totalValueLockedUSD",
+    totalValueLockedUSD.toString()
+  );
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "protocolControlledValueUSD",
+    protocolControlledValueUSD.toString()
+  );
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "cumulativeSupplySideRevenueUSD",
+    cumulativeSupplySideRevenueUSD.toString()
+  );
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "cumulativeProtocolSideRevenueUSD",
+    cumulativeProtocolSideRevenueUSD.toString()
+  );
+
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "cumulativeTotalRevenueUSD",
+    cumulativeTotalRevenueUSD.toString()
+  );
+  assert.fieldEquals(
+    "YieldAggregator",
+    address.toHexString(),
+    "cumulativeUniqueUsers",
+    cumulativeUniqueUsers.toString()
   );
 }

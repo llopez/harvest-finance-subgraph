@@ -12,6 +12,7 @@ import {
   mockERC20,
   assertToken,
   assertVault,
+  assertProtocol,
 } from "./controller-utils";
 
 describe("Controller", () => {
@@ -45,6 +46,25 @@ describe("Controller", () => {
 
       handleAddVaultAndStrategy(call);
 
+      assertProtocol(
+        Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c"),
+        "Harvest Finance",
+        "harvest-finance",
+        "0.0.1",
+        "0.0.1",
+        "0.0.1",
+        "MAINNET",
+        "YIELD",
+        BigDecimal.fromString("0"),
+        BigDecimal.fromString("0"),
+        BigDecimal.fromString("0"),
+        BigDecimal.fromString("0"),
+        BigDecimal.fromString("0"),
+        0
+      );
+
+      // TODO: check Vault.protocol
+
       // Vault Assertions
 
       assertVault(
@@ -57,7 +77,8 @@ describe("Controller", () => {
         call.block.timestamp,
         call.block.number,
         BigDecimal.fromString("0"),
-        BigInt.fromI32(0)
+        BigInt.fromI32(0),
+        "0x222412af183bceadefd72e4cb1b71f1889953b1c"
       );
 
       // Input Token Assertions
