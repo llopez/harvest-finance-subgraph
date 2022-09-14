@@ -2,8 +2,11 @@ import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   Deposit as DepositEvent,
   Transfer as TransferEvent,
+  Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
 import { Vault } from "../generated/schema";
+
+export function handleWithdraw(event: WithdrawEvent): void {}
 
 export function handleDeposit(event: DepositEvent): void {
   const amount = event.params.amount;
