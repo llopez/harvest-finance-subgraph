@@ -1,12 +1,5 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
-import {
-  afterEach,
-  assert,
-  clearStore,
-  describe,
-  log,
-  test,
-} from "matchstick-as";
+import { afterEach, assert, clearStore, describe, test } from "matchstick-as";
 import { createDepositEvent, createTransferEvent } from "./vault-utils";
 import { handleDeposit, handleTransfer } from "../src/vault";
 import { initializeVault } from "../src/utils/vaults";
@@ -27,19 +20,19 @@ function createVault(): Vault {
     "0x0000000000000000000000000000000000000004"
   );
 
-  const vault = initializeVault(
-    vaultAddress,
-    "FARM_USDC",
-    "fUSDC",
-    inputTokenAddress,
-    outputTokenAddress,
-    BigInt.fromI32(0),
-    BigInt.fromI32(0),
-    BigInt.fromI32(0),
-    BigDecimal.fromString("0"),
-    BigInt.fromI32(0),
-    protocolAddress.toHexString()
-  );
+  const vault = initializeVault({
+    address: vaultAddress,
+    name: "FARM_USDC",
+    symbol: "fUSDC",
+    inputToken: inputTokenAddress,
+    outputToken: outputTokenAddress,
+    depositLimit: BigInt.fromI32(0),
+    createdTimestamp: BigInt.fromI32(0),
+    createdBlockNumber: BigInt.fromI32(0),
+    totalValueLockedUSD: BigDecimal.fromString("0"),
+    inputTokenBalance: BigInt.fromI32(0),
+    protocol: protocolAddress.toHexString(),
+  });
 
   const feeId = "DEPOSIT-".concat(vaultAddress.toHexString());
 

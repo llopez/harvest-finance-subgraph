@@ -1,32 +1,29 @@
 import { Address } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
 
-export function initializeToken(
-  address: Address,
-  name: string,
-  symbol: string,
-  decimals: i32
-): Token {
-  const id = address.toHexString();
+class TokenAttributes {
+  address: Address;
+  name: string;
+  symbol: string;
+  decimals: i32;
+}
+
+export function initializeToken(attributes: TokenAttributes): Token {
+  const id = attributes.address.toHexString();
   const token = new Token(id);
-  token.name = name;
-  token.symbol = symbol;
-  token.decimals = decimals;
+  token.name = attributes.name;
+  token.symbol = attributes.symbol;
+  token.decimals = attributes.decimals;
 
   return token;
 }
 
-export function findOrInitializeToken(
-  address: Address,
-  name: string,
-  symbol: string,
-  decimals: i32
-): Token {
-  const id = address.toHexString();
+export function findOrInitializeToken(attributes: TokenAttributes): Token {
+  const id = attributes.address.toHexString();
 
   let token = Token.load(id);
 
   if (token) return token;
 
-  return initializeToken(address, name, symbol, decimals);
+  return initializeToken(attributes);
 }

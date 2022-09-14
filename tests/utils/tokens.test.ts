@@ -31,12 +31,12 @@ describe("tokens", () => {
       });
 
       test("returns token from store", () => {
-        const token = findOrInitializeToken(
+        const token = findOrInitializeToken({
           address,
-          "Token Name",
-          "Token Symbol",
-          6
-        );
+          name: "Token Name",
+          symbol: "Token Symbol",
+          decimals: 6,
+        });
         assert.stringEquals(token.id, address.toHexString());
         assert.stringEquals(token.name, "USD Coin");
         assert.stringEquals(token.symbol, "USDC");
@@ -46,12 +46,12 @@ describe("tokens", () => {
 
     describe("when token does not exist yet", () => {
       test("returns a new token instance", () => {
-        const token = findOrInitializeToken(
+        const token = findOrInitializeToken({
           address,
-          "Token Name",
-          "Token Symbol",
-          6
-        );
+          name: "Token Name",
+          symbol: "Token Symbol",
+          decimals: 6,
+        });
         assert.stringEquals(token.id, address.toHexString());
         assert.stringEquals(token.name, "Token Name");
         assert.stringEquals(token.symbol, "Token Symbol");

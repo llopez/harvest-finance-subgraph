@@ -1,77 +1,55 @@
 import { Address, BigDecimal } from "@graphprotocol/graph-ts";
 import { YieldAggregator } from "../../generated/schema";
 
+class ProtocolAttributes {
+  address: Address;
+  name: string;
+  slug: string;
+  schemaVersion: string;
+  subgraphVersion: string;
+  methodologyVersion: string;
+  network: string;
+  type: string;
+  totalValueLockedUSD: BigDecimal;
+  protocolControlledValueUSD: BigDecimal;
+  cumulativeSupplySideRevenueUSD: BigDecimal;
+  cumulativeProtocolSideRevenueUSD: BigDecimal;
+  cumulativeTotalRevenueUSD: BigDecimal;
+  cumulativeUniqueUsers: i32;
+}
+
 export function initializeProtocol(
-  address: Address,
-  name: string,
-  slug: string,
-  schemaVersion: string,
-  subgraphVersion: string,
-  methodologyVersion: string,
-  network: string,
-  type: string,
-  totalValueLockedUSD: BigDecimal,
-  protocolControlledValueUSD: BigDecimal,
-  cumulativeSupplySideRevenueUSD: BigDecimal,
-  cumulativeProtocolSideRevenueUSD: BigDecimal,
-  cumulativeTotalRevenueUSD: BigDecimal,
-  cumulativeUniqueUsers: i32
+  attributes: ProtocolAttributes
 ): YieldAggregator {
-  const id = address.toHexString();
+  const id = attributes.address.toHexString();
   const protocol = new YieldAggregator(id);
-  protocol.name = name;
-  protocol.slug = slug;
-  protocol.schemaVersion = schemaVersion;
-  protocol.subgraphVersion = subgraphVersion;
-  protocol.methodologyVersion = methodologyVersion;
-  protocol.network = network;
-  protocol.type = type;
-  protocol.totalValueLockedUSD = totalValueLockedUSD;
-  protocol.protocolControlledValueUSD = protocolControlledValueUSD;
-  protocol.cumulativeSupplySideRevenueUSD = cumulativeSupplySideRevenueUSD;
-  protocol.cumulativeProtocolSideRevenueUSD = cumulativeProtocolSideRevenueUSD;
-  protocol.cumulativeTotalRevenueUSD = cumulativeTotalRevenueUSD;
-  protocol.cumulativeUniqueUsers = cumulativeUniqueUsers;
+  protocol.name = attributes.name;
+  protocol.slug = attributes.slug;
+  protocol.schemaVersion = attributes.schemaVersion;
+  protocol.subgraphVersion = attributes.subgraphVersion;
+  protocol.methodologyVersion = attributes.methodologyVersion;
+  protocol.network = attributes.network;
+  protocol.type = attributes.type;
+  protocol.totalValueLockedUSD = attributes.totalValueLockedUSD;
+  protocol.protocolControlledValueUSD = attributes.protocolControlledValueUSD;
+  protocol.cumulativeSupplySideRevenueUSD =
+    attributes.cumulativeSupplySideRevenueUSD;
+  protocol.cumulativeProtocolSideRevenueUSD =
+    attributes.cumulativeProtocolSideRevenueUSD;
+  protocol.cumulativeTotalRevenueUSD = attributes.cumulativeTotalRevenueUSD;
+  protocol.cumulativeUniqueUsers = attributes.cumulativeUniqueUsers;
 
   return protocol;
 }
 
 export function findOrInitializeProtocol(
-  address: Address,
-  name: string,
-  slug: string,
-  schemaVersion: string,
-  subgraphVersion: string,
-  methodologyVersion: string,
-  network: string,
-  type: string,
-  totalValueLockedUSD: BigDecimal,
-  protocolControlledValueUSD: BigDecimal,
-  cumulativeSupplySideRevenueUSD: BigDecimal,
-  cumulativeProtocolSideRevenueUSD: BigDecimal,
-  cumulativeTotalRevenueUSD: BigDecimal,
-  cumulativeUniqueUsers: i32
+  attributes: ProtocolAttributes
 ): YieldAggregator {
-  const id = address.toHexString();
+  const id = attributes.address.toHexString();
 
   const protocol = YieldAggregator.load(id);
 
   if (protocol) return protocol;
 
-  return initializeProtocol(
-    address,
-    name,
-    slug,
-    schemaVersion,
-    subgraphVersion,
-    methodologyVersion,
-    network,
-    type,
-    totalValueLockedUSD,
-    protocolControlledValueUSD,
-    cumulativeSupplySideRevenueUSD,
-    cumulativeProtocolSideRevenueUSD,
-    cumulativeTotalRevenueUSD,
-    cumulativeUniqueUsers
-  );
+  return initializeProtocol(attributes);
 }

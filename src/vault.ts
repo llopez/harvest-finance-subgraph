@@ -17,6 +17,8 @@ export function handleDeposit(event: DepositEvent): void {
 
   if (!vault) return;
 
+  
+
   vault.inputTokenBalance = vault.inputTokenBalance.plus(amount);
   vault.save();
 }

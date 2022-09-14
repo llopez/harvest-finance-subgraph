@@ -18,35 +18,35 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   const underlying = vaultContract.try_underlying().value;
   const erc20Contract = ERC20Contract.bind(underlying);
 
-  let inputToken = findOrInitializeToken(
-    underlying,
-    erc20Contract.try_name().value,
-    erc20Contract.try_symbol().value,
-    erc20Contract.try_decimals().value
-  );
+  let inputToken = findOrInitializeToken({
+    address: underlying,
+    name: erc20Contract.try_name().value,
+    symbol: erc20Contract.try_symbol().value,
+    decimals: erc20Contract.try_decimals().value,
+  });
   inputToken.save();
 
-  let outputToken = findOrInitializeToken(
-    vaultAddress,
-    vaultContract.try_name().value,
-    vaultContract.try_symbol().value,
-    vaultContract.try_decimals().value
-  );
+  let outputToken = findOrInitializeToken({
+    address: vaultAddress,
+    name: vaultContract.try_name().value,
+    symbol: vaultContract.try_symbol().value,
+    decimals: vaultContract.try_decimals().value,
+  });
   outputToken.save();
 
-  vault = initializeVault(
-    vaultAddress,
-    vaultContract.try_name().value,
-    vaultContract.try_symbol().value,
-    underlying,
-    vaultAddress,
-    BigInt.fromI32(0),
-    call.block.timestamp,
-    call.block.number,
-    BigDecimal.fromString("0"),
-    BigInt.fromI32(0),
-    ""
-  );
+  vault = initializeVault({
+    address: vaultAddress,
+    name: vaultContract.try_name().value,
+    symbol: vaultContract.try_symbol().value,
+    inputToken: underlying,
+    outputToken: vaultAddress,
+    depositLimit: BigInt.fromI32(0),
+    createdTimestamp: call.block.timestamp,
+    createdBlockNumber: call.block.number,
+    totalValueLockedUSD: BigDecimal.fromString("0"),
+    inputTokenBalance: BigInt.fromI32(0),
+    protocol: "",
+  });
 
   // TODO: Remove this placeholder after logic implementation
   const fee = new VaultFee("DEPOSIT_FEE-".concat(vaultAddress.toHexString()));
@@ -55,22 +55,22 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   fee.save();
   vault.fees = [fee.id];
 
-  const protocol = findOrInitializeProtocol(
-    Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c"),
-    "Harvest Finance",
-    "harvest-finance",
-    "0.0.1",
-    "0.0.1",
-    "0.0.1",
-    "MAINNET",
-    "YIELD",
-    BigDecimal.fromString("0"),
-    BigDecimal.fromString("0"),
-    BigDecimal.fromString("0"),
-    BigDecimal.fromString("0"),
-    BigDecimal.fromString("0"),
-    0
-  );
+  const protocol = findOrInitializeProtocol({
+    address: Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c"),
+    name: "Harvest Finance",
+    slug: "harvest-finance",
+    schemaVersion: "0.0.1",
+    subgraphVersion: "0.0.1",
+    methodologyVersion: "0.0.1",
+    network: "MAINNET",
+    type: "YIELD",
+    totalValueLockedUSD: BigDecimal.fromString("0"),
+    protocolControlledValueUSD: BigDecimal.fromString("0"),
+    cumulativeSupplySideRevenueUSD: BigDecimal.fromString("0"),
+    cumulativeProtocolSideRevenueUSD: BigDecimal.fromString("0"),
+    cumulativeTotalRevenueUSD: BigDecimal.fromString("0"),
+    cumulativeUniqueUsers: 0,
+  });
 
   protocol.save();
 
