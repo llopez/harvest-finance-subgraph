@@ -6,7 +6,7 @@ import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { findOrInitializeToken } from "./utils/tokens";
 import { initializeVault } from "./utils/vaults";
 import { findOrInitializeProtocol } from "./utils/protocols";
-
+import { Vault as VaultTemplate } from "../generated/templates";
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   let vaultAddress = call.inputs._vault;
 
@@ -77,4 +77,6 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   vault.protocol = protocol.id;
 
   vault.save();
+
+  VaultTemplate.create(vaultAddress);
 }
