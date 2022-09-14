@@ -44,7 +44,8 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
     call.block.timestamp,
     call.block.number,
     BigDecimal.fromString("0"),
-    BigInt.fromI32(0)
+    BigInt.fromI32(0),
+    ""
   );
 
   // TODO: Remove this placeholder after logic implementation

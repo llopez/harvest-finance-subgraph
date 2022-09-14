@@ -15,6 +15,8 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Vault
+        - YieldAggregator
+        - Token
       abis:
         - name: ControllerContract
           file: ./abis/Controller.json
@@ -26,3 +28,26 @@ dataSources:
         - function: addVaultAndStrategy(address,address)
           handler: handleAddVaultAndStrategy
       file: ./src/controller.ts
+templates:
+  - kind: ethereum/contract
+    name: Vault
+    network: mainnet
+    source:
+      abi: VaultContract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Vault
+      abis:
+        - name: VaultContract
+          file: ./abis/Vault.json
+      eventHandlers:
+        - event: Deposit(indexed address,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,uint256)
+          handler: handleWithdraw
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/vault.ts

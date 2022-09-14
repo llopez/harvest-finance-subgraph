@@ -11,7 +11,8 @@ export function initializeVault(
   createdTimestamp: BigInt,
   createdBlockNumber: BigInt,
   totalValueLockedUSD: BigDecimal,
-  inputTokenBalance: BigInt
+  inputTokenBalance: BigInt,
+  protocol: string
 ): Vault {
   const id = address.toHexString();
 
@@ -26,6 +27,7 @@ export function initializeVault(
   vault.createdBlockNumber = createdBlockNumber;
   vault.totalValueLockedUSD = totalValueLockedUSD;
   vault.inputTokenBalance = inputTokenBalance;
+  vault.protocol = protocol;
 
   return vault;
 }
@@ -40,7 +42,8 @@ export function findOrInitializeVault(
   createdTimestamp: BigInt,
   createdBlockNumber: BigInt,
   totalValueLockedUSD: BigDecimal,
-  inputTokenBalance: BigInt
+  inputTokenBalance: BigInt,
+  protocol: string
 ): Vault {
   const id = address.toHexString();
 
@@ -58,6 +61,7 @@ export function findOrInitializeVault(
     createdTimestamp,
     createdBlockNumber,
     totalValueLockedUSD,
-    inputTokenBalance
+    inputTokenBalance,
+    protocol
   );
 }
