@@ -1,9 +1,15 @@
-import { newMockEvent } from "matchstick-as";
+import { newMockEvent, assert, log } from "matchstick-as";
 import {
   Deposit as DepositEvent,
   Transfer as TransferEvent,
 } from "../generated/Controller/VaultContract";
-import { BigInt, Address, ethereum } from "@graphprotocol/graph-ts";
+import {
+  BigInt,
+  Address,
+  ethereum,
+  Bytes,
+  BigDecimal,
+} from "@graphprotocol/graph-ts";
 
 export function createDepositEvent(
   amount: BigInt,
@@ -61,4 +67,60 @@ export function createTransferEvent(
   ];
 
   return event;
+}
+
+class AssertDepositAttributes {
+  hash: Bytes;
+  logIndex: BigInt;
+  protocol: string;
+  to: Address;
+  from: Address;
+  blockNumber: BigInt;
+  timestamp: BigInt;
+  asset: Address;
+  amount: BigInt;
+  amountUSD: BigDecimal;
+  vault: Address;
+}
+
+export function assertDeposit(
+  id: string,
+  attributes: AssertDepositAttributes
+): void {
+  assert.fieldEquals("Deposit", id, "hash", attributes.hash.toHexString());
+
+  assert.fieldEquals("Deposit", id, "to", attributes.to.toHexString());
+
+  assert.fieldEquals("Deposit", id, "from", attributes.from.toHexString());
+
+  assert.fieldEquals("Deposit", id, "asset", attributes.asset.toHexString());
+
+  assert.fieldEquals("Deposit", id, "amount", attributes.amount.toString());
+
+  assert.fieldEquals("Deposit", id, "vault", attributes.vault.toHexString());
+
+  assert.fieldEquals("Deposit", id, "logIndex", attributes.logIndex.toString());
+
+  assert.fieldEquals("Deposit", id, "protocol", attributes.protocol);
+
+  assert.fieldEquals(
+    "Deposit",
+    id,
+    "blockNumber",
+    attributes.blockNumber.toString()
+  );
+
+  assert.fieldEquals(
+    "Deposit",
+    id,
+    "timestamp",
+    attributes.timestamp.toString()
+  );
+
+  assert.fieldEquals(
+    "Deposit",
+    id,
+    "amountUSD",
+    attributes.amountUSD.toString()
+  );
 }

@@ -1,9 +1,14 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { afterEach, assert, clearStore, describe, test } from "matchstick-as";
-import { createDepositEvent, createTransferEvent } from "./vault-utils";
+import {
+  assertDeposit,
+  createDepositEvent,
+  createTransferEvent,
+} from "./vault-utils";
 import { handleDeposit, handleTransfer } from "../src/vault";
 import { initializeVault } from "../src/utils/vaults";
 import { Vault } from "../generated/schema";
+import { generateDepositId } from "../src/utils/deposits";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -62,6 +67,39 @@ describe("Vault", () => {
       handleDeposit(event);
 
       assert.fieldEquals("Vault", vault.id, "inputTokenBalance", "100");
+    });
+
+    test("creates Deposit", () => {
+      const vault = createVault();
+
+      const fromAddress = Address.fromString(
+        "0x0000000000000000000000000000000000000010"
+      );
+
+      const beneficiaryAddress = Address.fromString(
+        "0x0000000000000000000000000000000000000009"
+      );
+      const amount = BigInt.fromI32(100);
+      const event = createDepositEvent(amount, beneficiaryAddress);
+      event.address = Address.fromString(vault.id);
+      event.transaction.from = fromAddress;
+      handleDeposit(event);
+
+      const depositId = generateDepositId(event);
+
+      assertDeposit(depositId, {
+        hash: event.transaction.hash,
+        to: beneficiaryAddress,
+        from: fromAddress,
+        asset: Address.fromString(vault.inputToken),
+        amount: amount,
+        vault: vaultAddress,
+        logIndex: BigInt.fromI32(1),
+        protocol: vault.protocol,
+        blockNumber: BigInt.fromI32(1),
+        timestamp: BigInt.fromI32(1),
+        amountUSD: BigDecimal.fromString("0"),
+      });
     });
   });
 

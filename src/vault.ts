@@ -1,23 +1,41 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
   Deposit as DepositEvent,
   Transfer as TransferEvent,
   Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
 import { Vault } from "../generated/schema";
+import { generateDepositId, initializeDeposit } from "./utils/deposits";
 
 export function handleWithdraw(event: WithdrawEvent): void {}
 
 export function handleDeposit(event: DepositEvent): void {
   const amount = event.params.amount;
-  // const beneficiary = event.params.beneficiary;
+  const beneficiary = event.params.beneficiary;
   const vaultAddress = event.address;
 
   const vault = Vault.load(vaultAddress.toHexString());
 
   if (!vault) return;
 
-  
+  const id = generateDepositId(event);
+
+  const deposit = initializeDeposit({
+    id,
+    hash: event.transaction.hash,
+    logIndex: event.logIndex,
+    protocol: vault.protocol,
+    to: beneficiary,
+    from: event.transaction.from,
+    blockNumber: event.block.number,
+    timestamp: event.block.timestamp,
+    asset: Address.fromString(vault.inputToken),
+    amount: amount,
+    amountUSD: BigDecimal.fromString("0"),
+    vault: Address.fromString(vault.id),
+  });
+
+  deposit.save();
 
   vault.inputTokenBalance = vault.inputTokenBalance.plus(amount);
   vault.save();
