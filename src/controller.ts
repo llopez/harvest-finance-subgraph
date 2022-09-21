@@ -2,42 +2,65 @@ import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContr
 import { VaultContract } from "../generated/Controller/VaultContract";
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
 import { Vault, VaultFee } from "../generated/schema";
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
-import { findOrInitializeToken } from "./utils/tokens";
-import { initializeVault } from "./utils/vaults";
+import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
+import { extractErc20Values, findOrInitializeToken } from "./utils/tokens";
+import { extractVaultValues, initializeVault } from "./utils/vaults";
 import { findOrInitializeProtocol } from "./utils/protocols";
 import { Vault as VaultTemplate } from "../generated/templates";
+
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   let vaultAddress = call.inputs._vault;
-
-  let vaultContract = VaultContract.bind(vaultAddress);
 
   let vault = Vault.load(vaultAddress.toHexString());
 
   if (vault) return;
-  const underlying = vaultContract.try_underlying().value;
+
+  let vaultContract = VaultContract.bind(vaultAddress);
+
+  const vaultValues = extractVaultValues(vaultContract);
+
+  if (!vaultValues) {
+    log.debug("VaultCall Reverted block: {}, tx: {}", [
+      call.block.number.toString(),
+      call.transaction.hash.toHexString(),
+    ]);
+    return;
+  }
+
+  const underlying = vaultValues.underlying;
+
   const erc20Contract = ERC20Contract.bind(underlying);
+
+  const erc20Values = extractErc20Values(erc20Contract);
+
+  if (!erc20Values) {
+    log.debug("Erc20Call Reverted block: {}, tx: {}", [
+      call.block.number.toString(),
+      call.transaction.hash.toHexString(),
+    ]);
+    return;
+  }
 
   let inputToken = findOrInitializeToken({
     address: underlying,
-    name: erc20Contract.try_name().value,
-    symbol: erc20Contract.try_symbol().value,
-    decimals: erc20Contract.try_decimals().value,
+    name: erc20Values.name,
+    symbol: erc20Values.symbol,
+    decimals: erc20Values.decimals,
   });
   inputToken.save();
 
   let outputToken = findOrInitializeToken({
     address: vaultAddress,
-    name: vaultContract.try_name().value,
-    symbol: vaultContract.try_symbol().value,
-    decimals: vaultContract.try_decimals().value,
+    name: vaultValues.name,
+    symbol: vaultValues.symbol,
+    decimals: vaultValues.decimals,
   });
   outputToken.save();
 
   vault = initializeVault({
     address: vaultAddress,
-    name: vaultContract.try_name().value,
-    symbol: vaultContract.try_symbol().value,
+    name: vaultValues.name,
+    symbol: vaultValues.symbol,
     inputToken: underlying,
     outputToken: vaultAddress,
     depositLimit: BigInt.fromI32(0),
