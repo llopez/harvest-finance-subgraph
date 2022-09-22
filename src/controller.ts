@@ -2,13 +2,12 @@ import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContr
 import { VaultContract } from "../generated/Controller/VaultContract";
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
 import { VaultFee } from "../generated/schema";
-import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import { extractErc20Values } from "./utils/tokens";
 import { extractVaultValues } from "./utils/vaults";
-import { findOrInitializeProtocol } from "./utils/protocols";
 import { Vault as VaultTemplate } from "../generated/templates";
 import Token from "./models/Token";
-
+import Protocol from "./models/Protocol";
 import Vault from "./models/Vault";
 
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
@@ -81,8 +80,8 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   fee.save();
   vault.fees = [fee.id];
 
-  const protocol = findOrInitializeProtocol({
-    address: Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c"),
+  const protocol = Protocol.findOrInitialize({
+    id: "0x222412af183bceadefd72e4cb1b71f1889953b1c",
     name: "Harvest Finance",
     slug: "harvest-finance",
     schemaVersion: "0.0.1",
