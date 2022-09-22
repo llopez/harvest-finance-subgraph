@@ -1,13 +1,15 @@
 import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
 import { VaultContract } from "../generated/Controller/VaultContract";
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
-import { Vault, VaultFee } from "../generated/schema";
+import { VaultFee } from "../generated/schema";
 import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import { extractErc20Values } from "./utils/tokens";
-import { extractVaultValues, initializeVault } from "./utils/vaults";
+import { extractVaultValues } from "./utils/vaults";
 import { findOrInitializeProtocol } from "./utils/protocols";
 import { Vault as VaultTemplate } from "../generated/templates";
 import Token from "./models/Token";
+
+import Vault from "./models/Vault";
 
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   let vaultAddress = call.inputs._vault;
@@ -58,7 +60,7 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   });
   outputToken.save();
 
-  vault = initializeVault({
+  vault = Vault.build({
     address: vaultAddress,
     name: vaultValues.name,
     symbol: vaultValues.symbol,

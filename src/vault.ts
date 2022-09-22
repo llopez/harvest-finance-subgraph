@@ -4,8 +4,9 @@ import {
   Transfer as TransferEvent,
   Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
-import { Vault } from "../generated/schema";
 import { generateDepositId, initializeDeposit } from "./utils/deposits";
+
+import Vault from "./models/Vault";
 
 export function handleWithdraw(event: WithdrawEvent): void {}
 

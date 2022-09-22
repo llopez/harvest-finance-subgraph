@@ -6,9 +6,8 @@ import {
   createTransferEvent,
 } from "./vault-utils";
 import { handleDeposit, handleTransfer } from "../src/vault";
-import { initializeVault } from "../src/utils/vaults";
-import { Vault } from "../generated/schema";
 import { generateDepositId } from "../src/utils/deposits";
+import Vault from "../src/models/Vault";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -25,7 +24,7 @@ function createVault(): Vault {
     "0x0000000000000000000000000000000000000004"
   );
 
-  const vault = initializeVault({
+  const vault = Vault.build({
     address: vaultAddress,
     name: "FARM_USDC",
     symbol: "fUSDC",
