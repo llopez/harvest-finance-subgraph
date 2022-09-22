@@ -6,8 +6,9 @@ import {
   createTransferEvent,
 } from "./vault-utils";
 import { handleDeposit, handleTransfer } from "../src/vault";
-import { generateDepositId } from "../src/utils/deposits";
 import Vault from "../src/models/Vault";
+
+import Deposit from "../src/models/Deposit";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -84,7 +85,10 @@ describe("Vault", () => {
       event.transaction.from = fromAddress;
       handleDeposit(event);
 
-      const depositId = generateDepositId(event);
+      const depositId = Deposit.generateId(
+        event.transaction.hash,
+        event.logIndex
+      );
 
       assertDeposit(depositId, {
         hash: event.transaction.hash,

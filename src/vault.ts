@@ -4,9 +4,10 @@ import {
   Transfer as TransferEvent,
   Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
-import { generateDepositId, initializeDeposit } from "./utils/deposits";
 
 import Vault from "./models/Vault";
+
+import Deposit from "./models/Deposit";
 
 export function handleWithdraw(event: WithdrawEvent): void {}
 
@@ -19,10 +20,7 @@ export function handleDeposit(event: DepositEvent): void {
 
   if (!vault) return;
 
-  const id = generateDepositId(event);
-
-  const deposit = initializeDeposit({
-    id,
+  const deposit = Deposit.build({
     hash: event.transaction.hash,
     logIndex: event.logIndex,
     protocol: vault.protocol,
