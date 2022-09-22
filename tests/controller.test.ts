@@ -2,26 +2,52 @@ import {
   describe,
   test,
   clearStore,
-  afterAll,
   createMockedFunction,
+  assert,
+  afterEach,
 } from "matchstick-as/assembly/index";
 import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { handleAddVaultAndStrategy } from "../src/controller";
+import {
+  handleAddVaultAndStrategy,
+  handleSetFeeRewardForwarder,
+} from "../src/controller";
 import {
   mockCall,
   mockERC20,
   assertToken,
   assertVault,
   assertProtocol,
+  mockController,
+  mockFeeRewardForwarder,
+  mockSetFeeRewardForwarderCall,
 } from "./controller-utils";
+import RewardToken from "../src/models/RewardToken";
+
+const controllerAddress = Address.fromString(
+  "0x222412af183bceadefd72e4cb1b71f1889953b1c"
+);
+
+const feeRewardForwarderAddress = Address.fromString(
+  "0x0000000000000000000000000000000000000020"
+);
+
+const rewardTokenAddress = Address.fromString(
+  "0x0000000000000000000000000000000000000021"
+);
+
+// Controller.feeRewardForwarder
+mockController(controllerAddress, feeRewardForwarderAddress);
+
+// FeeRewardForwarder.farm
+mockFeeRewardForwarder(feeRewardForwarderAddress, rewardTokenAddress);
 
 describe("Controller", () => {
-  afterAll(() => {
+  afterEach(() => {
     clearStore();
   });
 
   describe("addVaultAndStrategy", () => {
-    test("creates Vault and Tokens", () => {
+    test("creates Vault, Tokens and RewardToken", () => {
       let vaultAddress = Address.fromString(
         "0x0000000000000000000000000000000000000002"
       );
@@ -63,8 +89,6 @@ describe("Controller", () => {
         0
       );
 
-      // TODO: check Vault.protocol
-
       // Vault Assertions
 
       assertVault(
@@ -88,6 +112,39 @@ describe("Controller", () => {
       // Output Token Assertions
 
       assertToken(vaultAddress, "FARM_USDC", "fUSDC", BigInt.fromI32(6));
+
+      // RewardToken Assertion
+
+      const rewardTokenId = RewardToken.generateId(
+        "DEPOSIT",
+        rewardTokenAddress
+      );
+
+      assert.fieldEquals("RewardToken", rewardTokenId, "type", "DEPOSIT");
+      assert.fieldEquals(
+        "RewardToken",
+        rewardTokenId,
+        "token",
+        rewardTokenAddress.toHexString()
+      );
+    });
+  });
+
+  describe("setFeeRewardForwarder", () => {
+    test("creates RewardToken", () => {
+      const call = mockSetFeeRewardForwarderCall(feeRewardForwarderAddress);
+
+      handleSetFeeRewardForwarder(call);
+
+      const id = RewardToken.generateId("DEPOSIT", rewardTokenAddress);
+
+      assert.fieldEquals("RewardToken", id, "type", "DEPOSIT");
+      assert.fieldEquals(
+        "RewardToken",
+        id,
+        "token",
+        rewardTokenAddress.toHexString()
+      );
     });
   });
 });

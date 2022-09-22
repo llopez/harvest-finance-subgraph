@@ -618,3 +618,10 @@ type ActiveAccount @entity {
   " { Address of the account }-{ Days since Unix epoch }-{ [Optional] HH: hour of the day } "
   id: ID!
 }
+
+type Global @entity {
+  " current "
+  id: ID!
+  " Address of FeeRewardForwarder "
+  controllerFeeRewardForwarder: String
+}

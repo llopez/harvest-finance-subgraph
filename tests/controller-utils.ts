@@ -1,6 +1,9 @@
 import { Address, ethereum, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 import { createMockedFunction, newMockCall, assert } from "matchstick-as";
-import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
+import {
+  AddVaultAndStrategyCall,
+  SetFeeRewardForwarderCall,
+} from "../generated/Controller/ControllerContract";
 
 export function mockCall(
   vault: Address,
@@ -19,6 +22,21 @@ export function mockCall(
   return changetype<AddVaultAndStrategyCall>(call);
 }
 
+export function mockSetFeeRewardForwarderCall(
+  address: Address
+): SetFeeRewardForwarderCall {
+  let to = Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c");
+  let from = Address.fromString("0x0000000000000000000000000000000000000001");
+  let call = newMockCall();
+  call.to = to;
+  call.from = from;
+  call.inputValues = [
+    new ethereum.EventParam("address", ethereum.Value.fromAddress(address)),
+  ];
+
+  return changetype<SetFeeRewardForwarderCall>(call);
+}
+
 export function mockERC20(
   address: Address,
   name: string,
@@ -33,6 +51,23 @@ export function mockERC20(
   ]);
   createMockedFunction(address, "decimals", "decimals():(uint8)").returns([
     ethereum.Value.fromI32(decimals),
+  ]);
+}
+
+export function mockController(
+  address: Address,
+  feeRewardForwarder: Address
+): void {
+  createMockedFunction(
+    address,
+    "feeRewardForwarder",
+    "feeRewardForwarder():(address)"
+  ).returns([ethereum.Value.fromAddress(feeRewardForwarder)]);
+}
+
+export function mockFeeRewardForwarder(address: Address, farm: Address): void {
+  createMockedFunction(address, "farm", "farm():(address)").returns([
+    ethereum.Value.fromAddress(farm),
   ]);
 }
 
