@@ -1,29 +1,16 @@
-import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { Deposit as BaseDeposit } from "../../generated/schema";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Withdraw as BaseWithdraw } from "../../generated/schema";
+import { Attributes } from "./Deposit";
 
-export class Attributes {
-  hash: Bytes;
-  logIndex: BigInt;
-  protocol: string;
-  to: Address;
-  from: Address;
-  blockNumber: BigInt;
-  timestamp: BigInt;
-  asset: Address;
-  amount: BigInt;
-  amountUSD: BigDecimal;
-  vault: Address;
-}
-
-class Deposit extends BaseDeposit {
+class Withdraw extends BaseWithdraw {
   static generateId(hash: Bytes, logIndex: BigInt): string {
     return hash.toHexString().concat(logIndex.toString());
   }
 
-  static findOrInitialize(attributes: Attributes): Deposit {
+  static findOrInitialize(attributes: Attributes): Withdraw {
     const id = this.generateId(attributes.hash, attributes.logIndex);
 
-    let instance = changetype<Deposit>(this.load(id));
+    let instance = changetype<Withdraw>(this.load(id));
 
     if (instance) return instance;
 
@@ -42,10 +29,10 @@ class Deposit extends BaseDeposit {
     });
   }
 
-  static build(attributes: Attributes): Deposit {
+  static build(attributes: Attributes): Withdraw {
     const id = this.generateId(attributes.hash, attributes.logIndex);
 
-    const instance = new Deposit(id);
+    const instance = new Withdraw(id);
     instance.hash = attributes.hash.toHexString();
     instance.logIndex = attributes.logIndex.toI32();
     instance.protocol = attributes.protocol;
@@ -61,11 +48,11 @@ class Deposit extends BaseDeposit {
     return instance;
   }
 
-  static create(attributes: Attributes): Deposit {
+  static create(attributes: Attributes): Withdraw {
     const instance = this.build(attributes);
     instance.save();
     return instance;
   }
 }
 
-export default Deposit;
+export default Withdraw;

@@ -1,7 +1,8 @@
-import { newMockEvent, assert, log } from "matchstick-as";
+import { newMockEvent, assert } from "matchstick-as";
 import {
   Deposit as DepositEvent,
   Transfer as TransferEvent,
+  Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
 import {
   BigInt,
@@ -10,6 +11,37 @@ import {
   Bytes,
   BigDecimal,
 } from "@graphprotocol/graph-ts";
+
+export function createWithdrawEvent(
+  amount: BigInt,
+  beneficiary: Address
+): WithdrawEvent {
+  let mockEvent = newMockEvent();
+
+  let event = new WithdrawEvent(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    null
+  );
+
+  event.parameters = [
+    new ethereum.EventParam(
+      "beneficiary",
+      ethereum.Value.fromAddress(beneficiary)
+    ),
+    new ethereum.EventParam(
+      "amount",
+      ethereum.Value.fromUnsignedBigInt(amount)
+    ),
+  ];
+
+  return event;
+}
 
 export function createDepositEvent(
   amount: BigInt,
@@ -69,7 +101,7 @@ export function createTransferEvent(
   return event;
 }
 
-class AssertDepositAttributes {
+class AssertEventAttributes {
   hash: Bytes;
   logIndex: BigInt;
   protocol: string;
@@ -85,7 +117,7 @@ class AssertDepositAttributes {
 
 export function assertDeposit(
   id: string,
-  attributes: AssertDepositAttributes
+  attributes: AssertEventAttributes
 ): void {
   assert.fieldEquals("Deposit", id, "hash", attributes.hash.toHexString());
 
@@ -119,6 +151,53 @@ export function assertDeposit(
 
   assert.fieldEquals(
     "Deposit",
+    id,
+    "amountUSD",
+    attributes.amountUSD.toString()
+  );
+}
+
+export function assertWithdraw(
+  id: string,
+  attributes: AssertEventAttributes
+): void {
+  assert.fieldEquals("Withdraw", id, "hash", attributes.hash.toHexString());
+
+  assert.fieldEquals("Withdraw", id, "to", attributes.to.toHexString());
+
+  assert.fieldEquals("Withdraw", id, "from", attributes.from.toHexString());
+
+  assert.fieldEquals("Withdraw", id, "asset", attributes.asset.toHexString());
+
+  assert.fieldEquals("Withdraw", id, "amount", attributes.amount.toString());
+
+  assert.fieldEquals("Withdraw", id, "vault", attributes.vault.toHexString());
+
+  assert.fieldEquals(
+    "Withdraw",
+    id,
+    "logIndex",
+    attributes.logIndex.toString()
+  );
+
+  assert.fieldEquals("Withdraw", id, "protocol", attributes.protocol);
+
+  assert.fieldEquals(
+    "Withdraw",
+    id,
+    "blockNumber",
+    attributes.blockNumber.toString()
+  );
+
+  assert.fieldEquals(
+    "Withdraw",
+    id,
+    "timestamp",
+    attributes.timestamp.toString()
+  );
+
+  assert.fieldEquals(
+    "Withdraw",
     id,
     "amountUSD",
     attributes.amountUSD.toString()

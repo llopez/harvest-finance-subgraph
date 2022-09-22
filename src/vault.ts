@@ -4,12 +4,39 @@ import {
   Transfer as TransferEvent,
   Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
-
 import Vault from "./models/Vault";
-
 import Deposit from "./models/Deposit";
+import Withdraw from "./models/Withdraw";
 
-export function handleWithdraw(event: WithdrawEvent): void {}
+export function handleWithdraw(event: WithdrawEvent): void {
+  const beneficiary = event.params.beneficiary;
+  const amount = event.params.amount;
+
+  const vaultAddress = event.address;
+
+  const vault = Vault.load(vaultAddress.toHexString());
+
+  if (!vault) return;
+
+  const withdraw = Withdraw.build({
+    hash: event.transaction.hash,
+    logIndex: event.logIndex,
+    protocol: vault.protocol,
+    to: beneficiary,
+    from: event.transaction.from,
+    blockNumber: event.block.number,
+    timestamp: event.block.timestamp,
+    asset: Address.fromString(vault.inputToken),
+    amount: amount,
+    amountUSD: BigDecimal.fromString("0"),
+    vault: Address.fromString(vault.id),
+  });
+
+  withdraw.save();
+
+  vault.inputTokenBalance = vault.inputTokenBalance.minus(amount);
+  vault.save();
+}
 
 export function handleDeposit(event: DepositEvent): void {
   const amount = event.params.amount;
