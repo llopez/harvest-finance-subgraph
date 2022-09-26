@@ -140,18 +140,30 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
       if (!farmCall.reverted) {
         const farm = farmCall.value;
 
-        const rewardToken = RewardToken.build({
+        global.feeRewardForwarderFarm = farm.toHexString();
+        global.save();
+
+        RewardToken.create({
           address: farm,
           type: "DEPOSIT",
           token: farm.toHexString(),
         });
 
-        rewardToken.save();
+        const token = Token.fromAddress(farm);
+        if (token) token.save();
       }
     }
   }
 
   // rewardTokens
+
+  if (global.feeRewardForwarderFarm) {
+    const rewardTokenId = RewardToken.generateId(
+      "DEPOSIT",
+      Address.fromString(global.feeRewardForwarderFarm as string)
+    );
+    vault.rewardTokens = [rewardTokenId];
+  }
 
   vault.save();
 
@@ -163,12 +175,13 @@ export function handleSetFeeRewardForwarder(
 ): void {
   const feeRewardForwarder = call.inputs._feeRewardForwarder;
 
-  const global = Global.load("current");
+  let global = Global.load("current");
 
-  if (
-    global &&
-    global.controllerFeeRewardForwarder == feeRewardForwarder.toHexString()
-  )
+  if (!global) {
+    global = new Global("current");
+  }
+
+  if (global.controllerFeeRewardForwarder == feeRewardForwarder.toHexString())
     return;
 
   const feeRewardForwarderContract = FeeRewardForwarderContract.bind(
@@ -181,6 +194,9 @@ export function handleSetFeeRewardForwarder(
 
   const farm = farmCall.value;
 
+  global.feeRewardForwarderFarm = farm.toHexString();
+  global.save();
+
   const rewardTokenId = RewardToken.generateId("DEPOSIT", farm);
 
   let rewardToken = RewardToken.load(rewardTokenId);
@@ -192,4 +208,7 @@ export function handleSetFeeRewardForwarder(
     type: "DEPOSIT",
     token: farm.toHexString(),
   });
+
+  const token = Token.fromAddress(farm);
+  if (token) token.save();
 }

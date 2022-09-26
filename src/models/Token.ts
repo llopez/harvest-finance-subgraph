@@ -1,5 +1,7 @@
 import { Address } from "@graphprotocol/graph-ts";
+import { ERC20Contract } from "../../generated/Controller/ERC20Contract";
 import { Token as BaseToken } from "../../generated/schema";
+import { extractErc20Values } from "../utils/tokens";
 
 class FindOrInitializeAttributes {
   id: string;
@@ -43,6 +45,20 @@ class Token extends BaseToken {
     const instance = this.build(attributes);
     instance.save();
     return instance;
+  }
+
+  static fromAddress(address: Address): Token | null {
+    const erc20Contract = ERC20Contract.bind(address);
+    const erc20Values = extractErc20Values(erc20Contract);
+
+    if (!erc20Values) return null;
+
+    return this.findOrInitialize({
+      id: address.toHexString(),
+      name: erc20Values.name,
+      symbol: erc20Values.symbol,
+      decimals: erc20Values.decimals,
+    });
   }
 }
 

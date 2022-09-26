@@ -624,4 +624,5 @@ type Global @entity {
   id: ID!
   " Address of FeeRewardForwarder "
   controllerFeeRewardForwarder: String
+  feeRewardForwarderFarm: String
 }
