@@ -1,20 +1,17 @@
 import {
   AddVaultAndStrategyCall,
-  ControllerContract,
   SetFeeRewardForwarderCall,
 } from "../generated/Controller/ControllerContract";
-import { FeeRewardForwarderContract } from "../generated/Controller/FeeRewardForwarderContract";
 import { VaultContract } from "../generated/Controller/VaultContract";
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
-import { Global, VaultFee } from "../generated/schema";
-import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
+import { VaultFee } from "../generated/schema";
+import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import { extractErc20Values } from "./utils/tokens";
 import { extractVaultValues } from "./utils/vaults";
 import { Vault as VaultTemplate } from "../generated/templates";
 import Token from "./models/Token";
 import Protocol from "./models/Protocol";
 import Vault from "./models/Vault";
-import RewardToken from "./models/RewardToken";
 
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   let vaultAddress = call.inputs._vault;
@@ -107,108 +104,7 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
 
   vault.protocol = protocol.id;
 
-  // rewardTokens
-
-  let global = Global.load("current");
-
-  if (!global) {
-    global = new Global("current");
-  }
-
-  // enters just the first time
-  // we just create the RewardToken for first time
-  // we will handle the update on another contract call (setFeeRewardForwarder)
-
-  if (!global.controllerFeeRewardForwarder) {
-    const controllerContract = ControllerContract.bind(
-      Address.fromString("0x222412af183bceadefd72e4cb1b71f1889953b1c")
-    );
-
-    const call = controllerContract.try_feeRewardForwarder();
-
-    if (!call.reverted) {
-      const feeRewardForwarder = call.value;
-      global.controllerFeeRewardForwarder = feeRewardForwarder.toHexString();
-      global.save();
-
-      const feeRewardForwarderContract = FeeRewardForwarderContract.bind(
-        feeRewardForwarder
-      );
-
-      const farmCall = feeRewardForwarderContract.try_farm();
-
-      if (!farmCall.reverted) {
-        const farm = farmCall.value;
-
-        global.feeRewardForwarderFarm = farm.toHexString();
-        global.save();
-
-        RewardToken.create({
-          address: farm,
-          type: "DEPOSIT",
-          token: farm.toHexString(),
-        });
-
-        const token = Token.fromAddress(farm);
-        if (token) token.save();
-      }
-    }
-  }
-
-  // rewardTokens
-
-  if (global.feeRewardForwarderFarm) {
-    const rewardTokenId = RewardToken.generateId(
-      "DEPOSIT",
-      Address.fromString(global.feeRewardForwarderFarm as string)
-    );
-    vault.rewardTokens = [rewardTokenId];
-  }
-
   vault.save();
 
   VaultTemplate.create(vaultAddress);
-}
-
-export function handleSetFeeRewardForwarder(
-  call: SetFeeRewardForwarderCall
-): void {
-  const feeRewardForwarder = call.inputs._feeRewardForwarder;
-
-  let global = Global.load("current");
-
-  if (!global) {
-    global = new Global("current");
-  }
-
-  if (global.controllerFeeRewardForwarder == feeRewardForwarder.toHexString())
-    return;
-
-  const feeRewardForwarderContract = FeeRewardForwarderContract.bind(
-    feeRewardForwarder
-  );
-
-  const farmCall = feeRewardForwarderContract.try_farm();
-
-  if (farmCall.reverted) return;
-
-  const farm = farmCall.value;
-
-  global.feeRewardForwarderFarm = farm.toHexString();
-  global.save();
-
-  const rewardTokenId = RewardToken.generateId("DEPOSIT", farm);
-
-  let rewardToken = RewardToken.load(rewardTokenId);
-
-  if (rewardToken) return;
-
-  RewardToken.create({
-    address: farm,
-    type: "DEPOSIT",
-    token: farm.toHexString(),
-  });
-
-  const token = Token.fromAddress(farm);
-  if (token) token.save();
 }
