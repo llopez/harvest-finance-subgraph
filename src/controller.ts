@@ -1,7 +1,4 @@
-import {
-  AddVaultAndStrategyCall,
-  SetFeeRewardForwarderCall,
-} from "../generated/Controller/ControllerContract";
+import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
 import { VaultContract } from "../generated/Controller/VaultContract";
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
 import { VaultFee } from "../generated/schema";
