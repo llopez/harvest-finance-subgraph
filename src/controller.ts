@@ -9,6 +9,7 @@ import { Vault as VaultTemplate } from "../generated/templates";
 import Token from "./models/Token";
 import Protocol from "./models/Protocol";
 import Vault from "./models/Vault";
+import { getPricePerToken } from "./utils/prices";
 
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   let vaultAddress = call.inputs._vault;
@@ -49,6 +50,9 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
     symbol: erc20Values.symbol,
     decimals: erc20Values.decimals,
   });
+
+  inputToken.lastPriceUSD = getPricePerToken(underlying);
+
   inputToken.save();
 
   let outputToken = Token.findOrInitialize({

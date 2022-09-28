@@ -4,6 +4,7 @@ import {
   clearStore,
   createMockedFunction,
   afterEach,
+  assert,
 } from "matchstick-as/assembly/index";
 import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { handleAddVaultAndStrategy } from "../src/controller";
@@ -13,7 +14,12 @@ import {
   assertToken,
   assertVault,
   assertProtocol,
+  mockChainLink,
 } from "./controller-utils";
+import {
+  CHAIN_LINK_CONTRACT_ADDRESS,
+  CHAIN_LINK_USD_ADDRESS,
+} from "../src/utils/prices";
 
 const controllerAddress = Address.fromString(
   "0x222412af183bceadefd72e4cb1b71f1889953b1c"
@@ -35,6 +41,14 @@ describe("Controller", () => {
 
       const inputTokenAddress = Address.fromString(
         "0x0000000000000000000000000000000000000004"
+      );
+
+      mockChainLink(
+        CHAIN_LINK_CONTRACT_ADDRESS,
+        inputTokenAddress,
+        CHAIN_LINK_USD_ADDRESS,
+        BigInt.fromString("99975399"),
+        8
       );
 
       createMockedFunction(
@@ -86,6 +100,13 @@ describe("Controller", () => {
       // Input Token Assertions
 
       assertToken(inputTokenAddress, "USD Coin", "USDC", BigInt.fromI32(6));
+
+      assert.fieldEquals(
+        "Token",
+        inputTokenAddress.toHexString(),
+        "lastPriceUSD",
+        "0.99975399"
+      );
 
       // Output Token Assertions
 
