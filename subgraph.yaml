@@ -24,6 +24,8 @@ dataSources:
           file: ./abis/Vault.json
         - name: ERC20Contract
           file: ./abis/ERC20.json
+        - name: ChainLinkContract
+          file: ./abis/ChainLink.json
       callHandlers:
         - function: addVaultAndStrategy(address,address)
           handler: handleAddVaultAndStrategy
