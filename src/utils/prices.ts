@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import { ChainLinkContract } from "../../generated/Controller/ChainLinkContract";
 
 export const CHAIN_LINK_CONTRACT_ADDRESS = Address.fromString(
@@ -17,14 +17,22 @@ export function getPricePerToken(tokenAddress: Address): BigDecimal {
     CHAIN_LINK_USD_ADDRESS
   );
 
-  if (latestRoundDataCall.reverted) return BigDecimal.fromString("0");
+  if (latestRoundDataCall.reverted) {
+    log.warning("latestRoundDataCall Reverted base: {}", [
+      tokenAddress.toHexString(),
+    ]);
+    return BigDecimal.fromString("0");
+  }
 
   const decimalsCall = contract.try_decimals(
     tokenAddress,
     CHAIN_LINK_USD_ADDRESS
   );
 
-  if (decimalsCall.reverted) return BigDecimal.fromString("0");
+  if (decimalsCall.reverted) {
+    log.warning("decimalsCall Reverted base: {}", [tokenAddress.toHexString()]);
+    return BigDecimal.fromString("0");
+  }
 
   const decimals = decimalsCall.value;
 
