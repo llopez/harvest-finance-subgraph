@@ -28,6 +28,8 @@ dataSources:
           file: ./abis/ChainLink.json
         - name: YearnLensContract
           file: ./abis/YearnLens.json
+        - name: UniswapRouterContract
+          file: ./abis/UniswapRouter.json
       callHandlers:
         - function: addVaultAndStrategy(address,address)
           handler: handleAddVaultAndStrategy

@@ -72,6 +72,24 @@ export function mockChainLink(
     .returns([ethereum.Value.fromI32(decimals)]);
 }
 
+export function mockUniswapRouter(
+  contractAddress: Address,
+  amountIn: BigInt,
+  path: Address[],
+  amountOut: BigInt
+): void {
+  createMockedFunction(
+    contractAddress,
+    "getAmountsOut",
+    "getAmountsOut(uint256,address[]):(uint256[])"
+  )
+    .withArgs([
+      ethereum.Value.fromUnsignedBigInt(amountIn),
+      ethereum.Value.fromAddressArray(path),
+    ])
+    .returns([ethereum.Value.fromUnsignedBigIntArray([amountIn, amountOut])]);
+}
+
 export function assertERC20(
   entity: string,
   address: Address,
