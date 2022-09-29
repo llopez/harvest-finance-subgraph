@@ -26,6 +26,8 @@ dataSources:
           file: ./abis/ERC20.json
         - name: ChainLinkContract
           file: ./abis/ChainLink.json
+        - name: YearnLensContract
+          file: ./abis/YearnLens.json
       callHandlers:
         - function: addVaultAndStrategy(address,address)
           handler: handleAddVaultAndStrategy

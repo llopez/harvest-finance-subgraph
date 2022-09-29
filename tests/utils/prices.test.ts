@@ -3,8 +3,8 @@ import { assert, describe, test } from "matchstick-as";
 import {
   CHAIN_LINK_CONTRACT_ADDRESS,
   CHAIN_LINK_USD_ADDRESS,
+  getChainLinkPricePerToken,
   getPrice,
-  getPricePerToken,
 } from "../../src/utils/prices";
 import { mockChainLink } from "../controller-utils";
 
@@ -13,7 +13,7 @@ const tokenAddress = Address.fromString(
 );
 
 describe("prices", () => {
-  describe("getPricePerToken", () => {
+  describe("getChainLinkPricePerToken", () => {
     test("returns token price", () => {
       mockChainLink(
         CHAIN_LINK_CONTRACT_ADDRESS,
@@ -23,9 +23,9 @@ describe("prices", () => {
         8
       );
 
-      const result = getPricePerToken(tokenAddress);
+      const result = getChainLinkPricePerToken(tokenAddress);
 
-      assert.stringEquals("0.99975399", result.toString());
+      assert.stringEquals("0.99975399", result!.toString());
     });
   });
 
