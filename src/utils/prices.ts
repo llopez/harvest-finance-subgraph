@@ -2,7 +2,7 @@ import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import { ChainLinkContract } from "../../generated/Controller/ChainLinkContract";
 
 export const CHAIN_LINK_CONTRACT_ADDRESS = Address.fromString(
-  "0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf"
+  "0x47fb2585d2c56fe188d0e6ec628a38b74fceeedf"
 );
 
 export const CHAIN_LINK_USD_ADDRESS = Address.fromString(
