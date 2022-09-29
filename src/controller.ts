@@ -52,6 +52,7 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   });
 
   inputToken.lastPriceUSD = getPricePerToken(underlying);
+  inputToken.lastPriceBlockNumber = call.block.number;
 
   inputToken.save();
 

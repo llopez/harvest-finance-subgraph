@@ -108,6 +108,13 @@ describe("Controller", () => {
         "0.99975399"
       );
 
+      assert.fieldEquals(
+        "Token",
+        inputTokenAddress.toHexString(),
+        "lastPriceBlockNumber",
+        call.block.number.toString()
+      );
+
       // Output Token Assertions
 
       assertToken(vaultAddress, "FARM_USDC", "fUSDC", BigInt.fromI32(6));
