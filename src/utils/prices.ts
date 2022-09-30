@@ -88,7 +88,9 @@ export function getYearnLensPricePerToken(
     return null;
   }
 
-  return callResult.value.toBigDecimal();
+  const usdcBase10 = BigInt.fromI32(10).pow(6);
+
+  return callResult.value.toBigDecimal().div(usdcBase10.toBigDecimal());
 }
 
 export function getChainLinkPricePerToken(

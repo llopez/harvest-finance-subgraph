@@ -90,6 +90,20 @@ export function mockUniswapRouter(
     .returns([ethereum.Value.fromUnsignedBigIntArray([amountIn, amountOut])]);
 }
 
+export function mockYearnLens(
+  contractAddress: Address,
+  tokenAddress: Address,
+  usdcValue: BigInt
+): void {
+  createMockedFunction(
+    contractAddress,
+    "getPriceUsdcRecommended",
+    "getPriceUsdcRecommended(address):(uint256)"
+  )
+    .withArgs([ethereum.Value.fromAddress(tokenAddress)])
+    .returns([ethereum.Value.fromUnsignedBigInt(usdcValue)]);
+}
+
 export function assertERC20(
   entity: string,
   address: Address,

@@ -6,14 +6,17 @@ import {
   getChainLinkPricePerToken,
   getPrice,
   getUniswapPricePerToken,
+  getYearnLensPricePerToken,
   UNISWAP_ROUTER_CONTRACT_ADDRESS,
   usdcAddress,
   wethAddress,
+  YEARN_LENS_CONTRACT_ADDRESS,
 } from "../../src/utils/prices";
 import {
   mockChainLink,
   mockERC20,
   mockUniswapRouter,
+  mockYearnLens,
 } from "../controller-utils";
 
 const tokenAddress = Address.fromString(
@@ -49,6 +52,20 @@ describe("prices", () => {
       );
 
       const result = getUniswapPricePerToken(tokenAddress);
+
+      assert.stringEquals("0.991234", result!.toString());
+    });
+  });
+
+  describe("getYearnLensPricePerToken", () => {
+    test("returns token price", () => {
+      mockYearnLens(
+        YEARN_LENS_CONTRACT_ADDRESS,
+        tokenAddress,
+        BigInt.fromString("991234")
+      );
+
+      const result = getYearnLensPricePerToken(tokenAddress);
 
       assert.stringEquals("0.991234", result!.toString());
     });
