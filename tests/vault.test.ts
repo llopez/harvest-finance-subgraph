@@ -11,15 +11,22 @@ import { handleDeposit, handleTransfer, handleWithdraw } from "../src/vault";
 import Vault from "../src/models/Vault";
 import Deposit from "../src/models/Deposit";
 import Withdraw from "../src/models/Withdraw";
+import Token from "../src/models/Token";
+import { mockChainLink } from "./controller-utils";
+import {
+  CHAIN_LINK_CONTRACT_ADDRESS,
+  CHAIN_LINK_USD_ADDRESS,
+} from "../src/utils/prices";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
 );
 
+const inputTokenAddress = Address.fromString(
+  "0x0000000000000000000000000000000000000002"
+);
+
 function createVault(): Vault {
-  const inputTokenAddress = Address.fromString(
-    "0x0000000000000000000000000000000000000002"
-  );
   const outputTokenAddress = Address.fromString(
     "0x0000000000000000000000000000000000000003"
   );
@@ -106,6 +113,37 @@ describe("Vault", () => {
         amountUSD: BigDecimal.fromString("0"),
       });
     });
+
+    test("updates Token.lastPriceUSD and Vault.totalValueLockedUSD ", () => {
+      const token = Token.create({
+        address: inputTokenAddress,
+        symbol: "tk1",
+        name: "token 1",
+        decimals: 6,
+      });
+
+      const vault = createVault();
+
+      const beneficiaryAddress = Address.fromString(
+        "0x0000000000000000000000000000000000000009"
+      );
+      const amount = BigInt.fromI32(100).times(BigInt.fromI32(10).pow(6));
+      const event = createDepositEvent(amount, beneficiaryAddress);
+      event.address = Address.fromString(vault.id);
+
+      mockChainLink(
+        CHAIN_LINK_CONTRACT_ADDRESS,
+        inputTokenAddress,
+        CHAIN_LINK_USD_ADDRESS,
+        BigInt.fromString("99975399"),
+        8
+      );
+
+      handleDeposit(event);
+
+      assert.fieldEquals("Token", token.id, "lastPriceUSD", "0.99975399");
+      assert.fieldEquals("Vault", vault.id, "totalValueLockedUSD", "99.975399");
+    });
   });
 
   describe("handleWithdraw", () => {
@@ -160,6 +198,46 @@ describe("Vault", () => {
         timestamp: BigInt.fromI32(1),
         amountUSD: BigDecimal.fromString("0"),
       });
+    });
+
+    test("updates Token.lastPriceUSD and Vault.totalValueLockedUSD", () => {
+      const token = Token.create({
+        address: inputTokenAddress,
+        symbol: "tk1",
+        name: "token 1",
+        decimals: 6,
+      });
+
+      const vault = createVault();
+      vault.inputTokenBalance = BigInt.fromI32(100).times(
+        BigInt.fromI32(10).pow(6)
+      );
+      vault.save();
+
+      const beneficiaryAddress = Address.fromString(
+        "0x0000000000000000000000000000000000000009"
+      );
+      const amount = BigInt.fromI32(40).times(BigInt.fromI32(10).pow(6));
+      const event = createWithdrawEvent(amount, beneficiaryAddress);
+      event.address = Address.fromString(vault.id);
+
+      mockChainLink(
+        CHAIN_LINK_CONTRACT_ADDRESS,
+        inputTokenAddress,
+        CHAIN_LINK_USD_ADDRESS,
+        BigInt.fromString("99975399"),
+        8
+      );
+
+      handleWithdraw(event);
+
+      assert.fieldEquals("Token", token.id, "lastPriceUSD", "0.99975399");
+      assert.fieldEquals(
+        "Vault",
+        vault.id,
+        "totalValueLockedUSD",
+        "59.9852394"
+      );
     });
   });
 

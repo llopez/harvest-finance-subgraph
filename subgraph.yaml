@@ -49,6 +49,14 @@ templates:
       abis:
         - name: VaultContract
           file: ./abis/Vault.json
+        - name: ERC20Contract
+          file: ./abis/ERC20.json
+        - name: ChainLinkContract
+          file: ./abis/ChainLink.json
+        - name: YearnLensContract
+          file: ./abis/YearnLens.json
+        - name: UniswapRouterContract
+          file: ./abis/UniswapRouter.json
       eventHandlers:
         - event: Deposit(indexed address,uint256)
           handler: handleDeposit

@@ -7,6 +7,8 @@ import {
 import Vault from "./models/Vault";
 import Deposit from "./models/Deposit";
 import Withdraw from "./models/Withdraw";
+import Token from "./models/Token";
+import { getPricePerToken } from "./utils/prices";
 
 export function handleWithdraw(event: WithdrawEvent): void {
   const beneficiary = event.params.beneficiary;
@@ -35,6 +37,26 @@ export function handleWithdraw(event: WithdrawEvent): void {
   withdraw.save();
 
   vault.inputTokenBalance = vault.inputTokenBalance.minus(amount);
+
+  const token = Token.load(vault.inputToken);
+  if (token) {
+    const tokenPriceUSD = getPricePerToken(
+      Address.fromString(vault.inputToken)
+    );
+
+    token.lastPriceUSD = tokenPriceUSD;
+    token.lastPriceBlockNumber = event.block.number;
+
+    const inputTokenBase10 = BigInt.fromI32(10).pow(token.decimals as u8);
+
+    vault.totalValueLockedUSD = vault.inputTokenBalance
+      .div(inputTokenBase10)
+      .toBigDecimal()
+      .times(tokenPriceUSD);
+
+    token.save();
+  }
+
   vault.save();
 }
 
@@ -64,6 +86,27 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.save();
 
   vault.inputTokenBalance = vault.inputTokenBalance.plus(amount);
+
+  // TODO: avoid duplicated code, move to a function or something
+  const token = Token.load(vault.inputToken);
+  if (token) {
+    const tokenPriceUSD = getPricePerToken(
+      Address.fromString(vault.inputToken)
+    );
+
+    token.lastPriceUSD = tokenPriceUSD;
+    token.lastPriceBlockNumber = event.block.number;
+
+    const inputTokenBase10 = BigInt.fromI32(10).pow(token.decimals as u8);
+
+    vault.totalValueLockedUSD = vault.inputTokenBalance
+      .div(inputTokenBase10)
+      .toBigDecimal()
+      .times(tokenPriceUSD);
+
+    token.save();
+  }
+
   vault.save();
 }
 
