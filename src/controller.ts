@@ -1,14 +1,13 @@
 import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
-import { VaultContract } from "../generated/Controller/VaultContract";
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
 import { VaultFee } from "../generated/schema";
-import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
+import { BigDecimal, log } from "@graphprotocol/graph-ts";
 import { extractErc20Values } from "./utils/tokens";
-import { extractVaultValues } from "./utils/vaults";
+import { vaults } from "./utils/vaults";
 import { Vault as VaultTemplate } from "../generated/templates";
 import Token from "./models/Token";
 import Protocol from "./models/Protocol";
-import Vault from "./models/Vault";
+import { Vault } from "../generated/schema";
 import { getPricePerToken } from "./utils/prices";
 
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
@@ -18,11 +17,9 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
 
   if (vault) return;
 
-  let vaultContract = VaultContract.bind(vaultAddress);
+  const vaultData = vaults.getData(vaultAddress);
 
-  const vaultValues = extractVaultValues(vaultContract);
-
-  if (!vaultValues) {
+  if (vaultData == null) {
     log.debug("VaultCall Reverted block: {}, tx: {}", [
       call.block.number.toString(),
       call.transaction.hash.toHexString(),
@@ -30,7 +27,7 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
     return;
   }
 
-  const underlying = vaultValues.underlying;
+  const underlying = vaultData.underlying;
 
   const erc20Contract = ERC20Contract.bind(underlying);
 
@@ -58,25 +55,20 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
 
   let outputToken = Token.findOrInitialize({
     id: vaultAddress.toHexString(),
-    name: vaultValues.name,
-    symbol: vaultValues.symbol,
-    decimals: vaultValues.decimals,
+    name: vaultData.name,
+    symbol: vaultData.symbol,
+    decimals: vaultData.decimals,
   });
   outputToken.save();
 
-  vault = Vault.build({
-    address: vaultAddress,
-    name: vaultValues.name,
-    symbol: vaultValues.symbol,
-    inputToken: underlying,
-    outputToken: vaultAddress,
-    depositLimit: BigInt.fromI32(0),
-    createdTimestamp: call.block.timestamp,
-    createdBlockNumber: call.block.number,
-    totalValueLockedUSD: BigDecimal.fromString("0"),
-    inputTokenBalance: BigInt.fromI32(0),
-    protocol: "",
-  });
+  vault = vaults.initialize(vaultAddress.toHexString());
+
+  vault.name = vaultData.name;
+  vault.symbol = vaultData.symbol;
+  vault.inputToken = underlying.toHexString();
+  vault.outputToken = vaultAddress.toHexString();
+  vault.createdTimestamp = call.block.timestamp;
+  vault.createdBlockNumber = call.block.number;
 
   // TODO: Remove this placeholder after logic implementation
   const fee = new VaultFee("DEPOSIT_FEE-".concat(vaultAddress.toHexString()));

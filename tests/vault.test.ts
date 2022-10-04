@@ -8,7 +8,7 @@ import {
   createWithdrawEvent,
 } from "./vault-utils";
 import { handleDeposit, handleTransfer, handleWithdraw } from "../src/vault";
-import Vault from "../src/models/Vault";
+import { Vault } from "../generated/schema";
 import Deposit from "../src/models/Deposit";
 import Withdraw from "../src/models/Withdraw";
 import Token from "../src/models/Token";
@@ -17,6 +17,7 @@ import {
   CHAIN_LINK_CONTRACT_ADDRESS,
   CHAIN_LINK_USD_ADDRESS,
 } from "../src/utils/prices";
+import { vaults } from "../src/utils/vaults";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -34,19 +35,13 @@ function createVault(): Vault {
     "0x0000000000000000000000000000000000000004"
   );
 
-  const vault = Vault.build({
-    address: vaultAddress,
-    name: "FARM_USDC",
-    symbol: "fUSDC",
-    inputToken: inputTokenAddress,
-    outputToken: outputTokenAddress,
-    depositLimit: BigInt.fromI32(0),
-    createdTimestamp: BigInt.fromI32(0),
-    createdBlockNumber: BigInt.fromI32(0),
-    totalValueLockedUSD: BigDecimal.fromString("0"),
-    inputTokenBalance: BigInt.fromI32(0),
-    protocol: protocolAddress.toHexString(),
-  });
+  const vault = vaults.initialize(vaultAddress.toHexString());
+
+  vault.name = "FARM_USDC";
+  vault.symbol = "fUSDC";
+  vault.inputToken = inputTokenAddress.toHexString();
+  vault.outputToken = outputTokenAddress.toHexString();
+  vault.protocol = protocolAddress.toHexString();
 
   const feeId = "DEPOSIT-".concat(vaultAddress.toHexString());
 

@@ -4,7 +4,7 @@ import {
   Transfer as TransferEvent,
   Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
-import Vault from "./models/Vault";
+import { Vault } from "../generated/schema";
 import Deposit from "./models/Deposit";
 import Withdraw from "./models/Withdraw";
 import Token from "./models/Token";
