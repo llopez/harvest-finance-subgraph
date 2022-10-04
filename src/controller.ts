@@ -2,10 +2,9 @@ import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContr
 import { ERC20Contract } from "../generated/Controller/ERC20Contract";
 import { VaultFee } from "../generated/schema";
 import { BigDecimal, log } from "@graphprotocol/graph-ts";
-import { extractErc20Values } from "./utils/tokens";
+import { extractErc20Values, tokens } from "./utils/tokens";
 import { vaults } from "./utils/vaults";
 import { Vault as VaultTemplate } from "../generated/templates";
-import Token from "./models/Token";
 import Protocol from "./models/Protocol";
 import { Vault } from "../generated/schema";
 import { getPricePerToken } from "./utils/prices";
@@ -41,24 +40,22 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
     return;
   }
 
-  let inputToken = Token.findOrInitialize({
-    id: underlying.toHexString(),
-    name: erc20Values.name,
-    symbol: erc20Values.symbol,
-    decimals: erc20Values.decimals,
-  });
+  let inputToken = tokens.findOrInitialize(underlying);
 
+  inputToken.name = erc20Values.name;
+  inputToken.symbol = erc20Values.symbol;
+  inputToken.decimals = erc20Values.decimals;
   inputToken.lastPriceUSD = getPricePerToken(underlying);
   inputToken.lastPriceBlockNumber = call.block.number;
 
   inputToken.save();
 
-  let outputToken = Token.findOrInitialize({
-    id: vaultAddress.toHexString(),
-    name: vaultData.name,
-    symbol: vaultData.symbol,
-    decimals: vaultData.decimals,
-  });
+  let outputToken = tokens.findOrInitialize(vaultAddress);
+
+  outputToken.name = vaultData.name;
+  outputToken.symbol = vaultData.symbol;
+  outputToken.decimals = vaultData.decimals;
+
   outputToken.save();
 
   vault = vaults.initialize(vaultAddress.toHexString());

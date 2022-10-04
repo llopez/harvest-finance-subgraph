@@ -9,7 +9,6 @@ import {
 } from "./vault-utils";
 import { handleDeposit, handleTransfer, handleWithdraw } from "../src/vault";
 import { Vault } from "../generated/schema";
-import Token from "../src/models/Token";
 import { mockChainLink } from "./controller-utils";
 import {
   CHAIN_LINK_CONTRACT_ADDRESS,
@@ -18,6 +17,7 @@ import {
 import { vaults } from "../src/utils/vaults";
 import { deposits } from "../src/utils/deposits";
 import { withdraws } from "../src/utils/withdraws";
+import { tokens } from "../src/utils/tokens";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -110,12 +110,11 @@ describe("Vault", () => {
     });
 
     test("updates Token.lastPriceUSD and Vault.totalValueLockedUSD ", () => {
-      const token = Token.create({
-        address: inputTokenAddress,
-        symbol: "tk1",
-        name: "token 1",
-        decimals: 6,
-      });
+      const token = tokens.initialize(inputTokenAddress.toHexString());
+      token.symbol = "tk1";
+      token.name = "token 1";
+      token.decimals = 6;
+      token.save();
 
       const vault = createVault();
 
@@ -196,12 +195,11 @@ describe("Vault", () => {
     });
 
     test("updates Token.lastPriceUSD and Vault.totalValueLockedUSD", () => {
-      const token = Token.create({
-        address: inputTokenAddress,
-        symbol: "tk1",
-        name: "token 1",
-        decimals: 6,
-      });
+      const token = tokens.initialize(inputTokenAddress.toHexString());
+      token.symbol = "tk1";
+      token.name = "token 1";
+      token.decimals = 6;
+      token.save();
 
       const vault = createVault();
       vault.inputTokenBalance = BigInt.fromI32(100).times(
