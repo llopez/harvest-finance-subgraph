@@ -2,7 +2,7 @@ import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import { ChainLinkContract } from "../../generated/Controller/ChainLinkContract";
 import { YearnLensContract } from "../../generated/Controller/YearnLensContract";
 import { UniswapRouterContract } from "../../generated/Controller/UniswapRouterContract";
-import { getErc20Decimals } from "./tokens";
+import { tokens } from "./tokens";
 
 export const CHAIN_LINK_CONTRACT_ADDRESS = Address.fromString(
   "0x47fb2585d2c56fe188d0e6ec628a38b74fceeedf"
@@ -51,9 +51,17 @@ export function getUniswapPricePerToken(
 
   const path = [tokenAddress, wethAddress, usdcAddress];
 
-  const tokenDecimals = getErc20Decimals(tokenAddress);
+  const tokenData = tokens.getData(tokenAddress);
 
-  const usdcDecimals = getErc20Decimals(usdcAddress);
+  if (tokenData == null) return null;
+
+  const tokenDecimals = tokenData.decimals;
+
+  const usdcData = tokens.getData(usdcAddress);
+
+  if (usdcData == null) return null;
+
+  const usdcDecimals = usdcData.decimals;
 
   const usdcBase10 = BigInt.fromI32(10).pow(usdcDecimals as u8);
 

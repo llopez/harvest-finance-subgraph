@@ -1,8 +1,7 @@
 import { AddVaultAndStrategyCall } from "../generated/Controller/ControllerContract";
-import { ERC20Contract } from "../generated/Controller/ERC20Contract";
 import { VaultFee } from "../generated/schema";
 import { BigDecimal, log } from "@graphprotocol/graph-ts";
-import { extractErc20Values, tokens } from "./utils/tokens";
+import { tokens } from "./utils/tokens";
 import { vaults } from "./utils/vaults";
 import { Vault as VaultTemplate } from "../generated/templates";
 import { Vault } from "../generated/schema";
@@ -29,11 +28,9 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
 
   const underlying = vaultData.underlying;
 
-  const erc20Contract = ERC20Contract.bind(underlying);
+  const erc20Values = tokens.getData(underlying);
 
-  const erc20Values = extractErc20Values(erc20Contract);
-
-  if (!erc20Values) {
+  if (erc20Values == null) {
     log.debug("Erc20Call Reverted block: {}, tx: {}", [
       call.block.number.toString(),
       call.transaction.hash.toHexString(),
