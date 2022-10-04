@@ -5,9 +5,10 @@ import { BigDecimal, log } from "@graphprotocol/graph-ts";
 import { extractErc20Values, tokens } from "./utils/tokens";
 import { vaults } from "./utils/vaults";
 import { Vault as VaultTemplate } from "../generated/templates";
-import Protocol from "./models/Protocol";
 import { Vault } from "../generated/schema";
 import { getPricePerToken } from "./utils/prices";
+import { protocols } from "./utils/protocols";
+import { constants } from "./utils/constants";
 
 export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   let vaultAddress = call.inputs._vault;
@@ -74,22 +75,7 @@ export function handleAddVaultAndStrategy(call: AddVaultAndStrategyCall): void {
   fee.save();
   vault.fees = [fee.id];
 
-  const protocol = Protocol.findOrInitialize({
-    id: "0x222412af183bceadefd72e4cb1b71f1889953b1c",
-    name: "Harvest Finance",
-    slug: "harvest-finance",
-    schemaVersion: "0.0.1",
-    subgraphVersion: "0.0.1",
-    methodologyVersion: "0.0.1",
-    network: "MAINNET",
-    type: "YIELD",
-    totalValueLockedUSD: BigDecimal.fromString("0"),
-    protocolControlledValueUSD: BigDecimal.fromString("0"),
-    cumulativeSupplySideRevenueUSD: BigDecimal.fromString("0"),
-    cumulativeProtocolSideRevenueUSD: BigDecimal.fromString("0"),
-    cumulativeTotalRevenueUSD: BigDecimal.fromString("0"),
-    cumulativeUniqueUsers: 0,
-  });
+  const protocol = protocols.findOrInitialize(constants.CONTROLLER_ADDRESS);
 
   protocol.save();
 
