@@ -2,6 +2,7 @@ import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { afterEach, assert, clearStore, describe, test } from "matchstick-as";
 import {
   assertDeposit,
+  assertVaultDailySnapshot,
   assertWithdraw,
   createDepositEvent,
   createTransferEvent,
@@ -15,6 +16,7 @@ import { deposits } from "../src/utils/deposits";
 import { withdraws } from "../src/utils/withdraws";
 import { tokens } from "../src/utils/tokens";
 import { constants } from "../src/utils/constants";
+import { logStore } from "matchstick-as/assembly/store";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -134,6 +136,50 @@ describe("Vault", () => {
 
       assert.fieldEquals("Token", token.id, "lastPriceUSD", "0.99975399");
       assert.fieldEquals("Vault", vault.id, "totalValueLockedUSD", "99.975399");
+    });
+
+    test("updates VaultSnapshots", () => {
+      const vault = createVault();
+
+      const fromAddress = Address.fromString(
+        "0x0000000000000000000000000000000000000010"
+      );
+
+      const beneficiaryAddress = Address.fromString(
+        "0x0000000000000000000000000000000000000009"
+      );
+      const amount = BigInt.fromI32(100);
+      const event = createDepositEvent(amount, beneficiaryAddress);
+      event.address = Address.fromString(vault.id);
+      event.transaction.from = fromAddress;
+      handleDeposit(event);
+
+      const vaultStore = Vault.load(vault.id)!;
+
+      // Review
+      const vaultDailySnapshotId = vaultAddress
+        .toHexString()
+        .concat("-")
+        .concat(
+          (event.block.timestamp.toI64() / constants.SECONDS_PER_DAY).toString()
+        );
+
+      logStore();
+
+      assertVaultDailySnapshot(vaultDailySnapshotId, {
+        protocol: constants.PROTOCOL_ID,
+        vault: vaultAddress,
+        totalValueLockedUSD: vaultStore.totalValueLockedUSD,
+        inputTokenBalance: vaultStore.inputTokenBalance,
+        outputTokenSupply: vaultStore.outputTokenSupply!,
+        outputTokenPriceUSD: vaultStore.outputTokenPriceUSD!,
+        pricePerShare: vaultStore.pricePerShare!,
+        stakedOutputTokenAmount: vaultStore.stakedOutputTokenAmount!,
+        rewardTokenEmissionsAmount: vaultStore.rewardTokenEmissionsAmount,
+        rewardTokenEmissionsUSD: vaultStore.rewardTokenEmissionsUSD,
+        blockNumber: event.block.number,
+        timestamp: event.block.timestamp,
+      });
     });
   });
 

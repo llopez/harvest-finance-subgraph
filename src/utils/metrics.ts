@@ -33,6 +33,7 @@ export namespace metrics {
       vaultSnapshots.outputTokenSupply = constants.BIG_INT_ZERO;
       vaultSnapshots.outputTokenPriceUSD = constants.BIG_DECIMAL_ZERO;
       vaultSnapshots.pricePerShare = constants.BIG_DECIMAL_ZERO;
+      vaultSnapshots.stakedOutputTokenAmount = constants.BIG_INT_ZERO;
 
       /* Version: 1.3.0
             vaultSnapshots.dailySupplySideRevenueUSD = constants.BIG_DECIMAL_ZERO;

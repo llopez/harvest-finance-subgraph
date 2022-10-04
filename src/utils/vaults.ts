@@ -67,6 +67,9 @@ export namespace vaults {
     vault.totalValueLockedUSD = constants.BIG_DECIMAL_ZERO;
     vault.inputTokenBalance = constants.BIG_INT_ZERO;
     vault.outputTokenSupply = constants.BIG_INT_ZERO;
+    vault.outputTokenPriceUSD = constants.BIG_DECIMAL_ZERO;
+    vault.pricePerShare = constants.BIG_DECIMAL_ZERO;
+    vault.stakedOutputTokenAmount = constants.BIG_INT_ZERO;
     vault.protocol = "";
 
     return vault;

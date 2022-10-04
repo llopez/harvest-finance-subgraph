@@ -203,3 +203,104 @@ export function assertWithdraw(
     attributes.amountUSD.toString()
   );
 }
+
+class AssertVaultSnapshotAttributes {
+  protocol: string;
+  vault: Address;
+  totalValueLockedUSD: BigDecimal;
+  inputTokenBalance: BigInt;
+  outputTokenSupply: BigInt;
+  outputTokenPriceUSD: BigDecimal;
+  pricePerShare: BigDecimal;
+  stakedOutputTokenAmount: BigInt;
+  rewardTokenEmissionsAmount: BigInt[] | null;
+  rewardTokenEmissionsUSD: BigDecimal[] | null;
+  blockNumber: BigInt;
+  timestamp: BigInt;
+}
+
+export function assertVaultDailySnapshot(
+  id: string,
+  attributes: AssertVaultSnapshotAttributes
+): void {
+  assert.fieldEquals("VaultDailySnapshot", id, "protocol", attributes.protocol);
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "vault",
+    attributes.vault.toHexString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "totalValueLockedUSD",
+    attributes.totalValueLockedUSD.toString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "inputTokenBalance",
+    attributes.inputTokenBalance.toString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "outputTokenSupply",
+    attributes.outputTokenSupply.toString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "outputTokenPriceUSD",
+    attributes.outputTokenPriceUSD.toString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "pricePerShare",
+    attributes.pricePerShare.toString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "stakedOutputTokenAmount",
+    attributes.stakedOutputTokenAmount.toString()
+  );
+
+  /*
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "rewardTokenEmissionsAmount",
+    attributes.rewardTokenEmissionsAmount.toString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "rewardTokenEmissionsUSD",
+    attributes.rewardTokenEmissionsUSD.toString()
+  );
+  */
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "blockNumber",
+    attributes.blockNumber.toString()
+  );
+
+  assert.fieldEquals(
+    "VaultDailySnapshot",
+    id,
+    "timestamp",
+    attributes.timestamp.toString()
+  );
+}
