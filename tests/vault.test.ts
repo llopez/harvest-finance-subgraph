@@ -9,8 +9,6 @@ import {
 } from "./vault-utils";
 import { handleDeposit, handleTransfer, handleWithdraw } from "../src/vault";
 import { Vault } from "../generated/schema";
-import Deposit from "../src/models/Deposit";
-import Withdraw from "../src/models/Withdraw";
 import Token from "../src/models/Token";
 import { mockChainLink } from "./controller-utils";
 import {
@@ -18,6 +16,8 @@ import {
   CHAIN_LINK_USD_ADDRESS,
 } from "../src/utils/prices";
 import { vaults } from "../src/utils/vaults";
+import { deposits } from "../src/utils/deposits";
+import { withdraws } from "../src/utils/withdraws";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -89,7 +89,7 @@ describe("Vault", () => {
       event.transaction.from = fromAddress;
       handleDeposit(event);
 
-      const depositId = Deposit.generateId(
+      const depositId = deposits.generateId(
         event.transaction.hash,
         event.logIndex
       );
@@ -175,7 +175,7 @@ describe("Vault", () => {
       event.transaction.from = fromAddress;
       handleWithdraw(event);
 
-      const withdrawId = Withdraw.generateId(
+      const withdrawId = withdraws.generateId(
         event.transaction.hash,
         event.logIndex
       );

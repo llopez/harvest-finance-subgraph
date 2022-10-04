@@ -1,14 +1,14 @@
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   Deposit as DepositEvent,
   Transfer as TransferEvent,
   Withdraw as WithdrawEvent,
 } from "../generated/Controller/VaultContract";
 import { Vault } from "../generated/schema";
-import Deposit from "./models/Deposit";
-import Withdraw from "./models/Withdraw";
 import Token from "./models/Token";
 import { getPricePerToken } from "./utils/prices";
+import { deposits } from "./utils/deposits";
+import { withdraws } from "./utils/withdraws";
 
 export function handleWithdraw(event: WithdrawEvent): void {
   const beneficiary = event.params.beneficiary;
@@ -20,19 +20,20 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   if (!vault) return;
 
-  const withdraw = Withdraw.build({
-    hash: event.transaction.hash,
-    logIndex: event.logIndex,
-    protocol: vault.protocol,
-    to: beneficiary,
-    from: event.transaction.from,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    asset: Address.fromString(vault.inputToken),
-    amount: amount,
-    amountUSD: BigDecimal.fromString("0"),
-    vault: Address.fromString(vault.id),
-  });
+  const id = withdraws.generateId(event.transaction.hash, event.logIndex);
+
+  const withdraw = withdraws.initialize(id);
+
+  withdraw.hash = event.transaction.hash.toHexString();
+  withdraw.logIndex = event.logIndex.toI32();
+  withdraw.protocol = vault.protocol;
+  withdraw.to = beneficiary.toHexString();
+  withdraw.from = event.transaction.from.toHexString();
+  withdraw.blockNumber = event.block.number;
+  withdraw.timestamp = event.block.timestamp;
+  withdraw.asset = vault.inputToken;
+  withdraw.amount = amount;
+  withdraw.vault = vault.id;
 
   withdraw.save();
 
@@ -69,19 +70,19 @@ export function handleDeposit(event: DepositEvent): void {
 
   if (!vault) return;
 
-  const deposit = Deposit.build({
-    hash: event.transaction.hash,
-    logIndex: event.logIndex,
-    protocol: vault.protocol,
-    to: beneficiary,
-    from: event.transaction.from,
-    blockNumber: event.block.number,
-    timestamp: event.block.timestamp,
-    asset: Address.fromString(vault.inputToken),
-    amount: amount,
-    amountUSD: BigDecimal.fromString("0"),
-    vault: Address.fromString(vault.id),
-  });
+  const id = deposits.generateId(event.transaction.hash, event.logIndex);
+
+  const deposit = deposits.initialize(id);
+  deposit.hash = event.transaction.hash.toHexString();
+  deposit.logIndex = event.logIndex.toI32();
+  deposit.protocol = vault.protocol;
+  deposit.to = beneficiary.toHexString();
+  deposit.from = event.transaction.from.toHexString();
+  deposit.blockNumber = event.block.number;
+  deposit.timestamp = event.block.timestamp;
+  deposit.asset = vault.inputToken;
+  deposit.amount = amount;
+  deposit.vault = vault.id;
 
   deposit.save();
 
