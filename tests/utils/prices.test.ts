@@ -1,16 +1,10 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { assert, describe, test } from "matchstick-as";
 import {
-  CHAIN_LINK_CONTRACT_ADDRESS,
-  CHAIN_LINK_USD_ADDRESS,
   getChainLinkPricePerToken,
   getPrice,
   getUniswapPricePerToken,
   getYearnLensPricePerToken,
-  UNISWAP_ROUTER_CONTRACT_ADDRESS,
-  usdcAddress,
-  wethAddress,
-  YEARN_LENS_CONTRACT_ADDRESS,
 } from "../../src/utils/prices";
 import {
   mockChainLink,
@@ -18,6 +12,8 @@ import {
   mockUniswapRouter,
   mockYearnLens,
 } from "../controller-utils";
+
+import { constants } from "../../src/utils/constants";
 
 const tokenAddress = Address.fromString(
   "0x6b175474e89094c44da98b954eedeac495271d0f"
@@ -27,9 +23,9 @@ describe("prices", () => {
   describe("getChainLinkPricePerToken", () => {
     test("returns token price", () => {
       mockChainLink(
-        CHAIN_LINK_CONTRACT_ADDRESS,
+        constants.CHAIN_LINK_CONTRACT_ADDRESS,
         tokenAddress,
-        CHAIN_LINK_USD_ADDRESS,
+        constants.CHAIN_LINK_USD_ADDRESS,
         BigInt.fromString("99975399"),
         8
       );
@@ -43,11 +39,11 @@ describe("prices", () => {
   describe("getUniswapPricePerToken", () => {
     test("returns token price", () => {
       mockERC20(tokenAddress, "DAI", "DAI", 18);
-      mockERC20(usdcAddress, "USDC", "USDC", 6);
+      mockERC20(constants.USDC_ADDRESS, "USDC", "USDC", 6);
       mockUniswapRouter(
-        UNISWAP_ROUTER_CONTRACT_ADDRESS,
+        constants.UNISWAP_ROUTER_CONTRACT_ADDRESS,
         BigInt.fromString("1000000000000000000"), // 1 dai
-        [tokenAddress, wethAddress, usdcAddress],
+        [tokenAddress, constants.WETH_ADDRESS, constants.USDC_ADDRESS],
         BigInt.fromString("991234")
       );
 
@@ -60,7 +56,7 @@ describe("prices", () => {
   describe("getYearnLensPricePerToken", () => {
     test("returns token price", () => {
       mockYearnLens(
-        YEARN_LENS_CONTRACT_ADDRESS,
+        constants.YEARN_LENS_CONTRACT_ADDRESS,
         tokenAddress,
         BigInt.fromString("991234")
       );

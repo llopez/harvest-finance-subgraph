@@ -3,30 +3,7 @@ import { ChainLinkContract } from "../../generated/Controller/ChainLinkContract"
 import { YearnLensContract } from "../../generated/Controller/YearnLensContract";
 import { UniswapRouterContract } from "../../generated/Controller/UniswapRouterContract";
 import { tokens } from "./tokens";
-
-export const CHAIN_LINK_CONTRACT_ADDRESS = Address.fromString(
-  "0x47fb2585d2c56fe188d0e6ec628a38b74fceeedf"
-);
-
-export const YEARN_LENS_CONTRACT_ADDRESS = Address.fromString(
-  "0x83d95e0d5f402511db06817aff3f9ea88224b030"
-);
-
-export const UNISWAP_ROUTER_CONTRACT_ADDRESS = Address.fromString(
-  "0x7a250d5630b4cf539739df2c5dacb4c659f2488d"
-);
-
-export const CHAIN_LINK_USD_ADDRESS = Address.fromString(
-  "0x0000000000000000000000000000000000000348"
-);
-
-export const usdcAddress = Address.fromString(
-  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-);
-
-export const wethAddress = Address.fromString(
-  "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-);
+import { constants } from "./constants";
 
 export function getPricePerToken(tokenAddress: Address): BigDecimal {
   const chainLinkPricePerToken = getChainLinkPricePerToken(tokenAddress);
@@ -47,9 +24,11 @@ export function getPricePerToken(tokenAddress: Address): BigDecimal {
 export function getUniswapPricePerToken(
   tokenAddress: Address
 ): BigDecimal | null {
-  const contract = UniswapRouterContract.bind(UNISWAP_ROUTER_CONTRACT_ADDRESS);
+  const contract = UniswapRouterContract.bind(
+    constants.UNISWAP_ROUTER_CONTRACT_ADDRESS
+  );
 
-  const path = [tokenAddress, wethAddress, usdcAddress];
+  const path = [tokenAddress, constants.WETH_ADDRESS, constants.USDC_ADDRESS];
 
   const tokenData = tokens.getData(tokenAddress);
 
@@ -57,7 +36,7 @@ export function getUniswapPricePerToken(
 
   const tokenDecimals = tokenData.decimals;
 
-  const usdcData = tokens.getData(usdcAddress);
+  const usdcData = tokens.getData(constants.USDC_ADDRESS);
 
   if (usdcData == null) return null;
 
@@ -85,7 +64,9 @@ export function getUniswapPricePerToken(
 export function getYearnLensPricePerToken(
   tokenAddress: Address
 ): BigDecimal | null {
-  const contract = YearnLensContract.bind(YEARN_LENS_CONTRACT_ADDRESS);
+  const contract = YearnLensContract.bind(
+    constants.YEARN_LENS_CONTRACT_ADDRESS
+  );
 
   const callResult = contract.try_getPriceUsdcRecommended(tokenAddress);
 
@@ -104,11 +85,13 @@ export function getYearnLensPricePerToken(
 export function getChainLinkPricePerToken(
   tokenAddress: Address
 ): BigDecimal | null {
-  const contract = ChainLinkContract.bind(CHAIN_LINK_CONTRACT_ADDRESS);
+  const contract = ChainLinkContract.bind(
+    constants.CHAIN_LINK_CONTRACT_ADDRESS
+  );
 
   const latestRoundDataCall = contract.try_latestRoundData(
     tokenAddress,
-    CHAIN_LINK_USD_ADDRESS
+    constants.CHAIN_LINK_USD_ADDRESS
   );
 
   if (latestRoundDataCall.reverted) {
@@ -120,7 +103,7 @@ export function getChainLinkPricePerToken(
 
   const decimalsCall = contract.try_decimals(
     tokenAddress,
-    CHAIN_LINK_USD_ADDRESS
+    constants.CHAIN_LINK_USD_ADDRESS
   );
 
   if (decimalsCall.reverted) {

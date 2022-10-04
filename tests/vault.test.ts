@@ -10,14 +10,11 @@ import {
 import { handleDeposit, handleTransfer, handleWithdraw } from "../src/vault";
 import { Vault } from "../generated/schema";
 import { mockChainLink } from "./controller-utils";
-import {
-  CHAIN_LINK_CONTRACT_ADDRESS,
-  CHAIN_LINK_USD_ADDRESS,
-} from "../src/utils/prices";
 import { vaults } from "../src/utils/vaults";
 import { deposits } from "../src/utils/deposits";
 import { withdraws } from "../src/utils/withdraws";
 import { tokens } from "../src/utils/tokens";
+import { constants } from "../src/utils/constants";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -126,9 +123,9 @@ describe("Vault", () => {
       event.address = Address.fromString(vault.id);
 
       mockChainLink(
-        CHAIN_LINK_CONTRACT_ADDRESS,
+        constants.CHAIN_LINK_CONTRACT_ADDRESS,
         inputTokenAddress,
-        CHAIN_LINK_USD_ADDRESS,
+        constants.CHAIN_LINK_USD_ADDRESS,
         BigInt.fromString("99975399"),
         8
       );
@@ -215,9 +212,9 @@ describe("Vault", () => {
       event.address = Address.fromString(vault.id);
 
       mockChainLink(
-        CHAIN_LINK_CONTRACT_ADDRESS,
+        constants.CHAIN_LINK_CONTRACT_ADDRESS,
         inputTokenAddress,
-        CHAIN_LINK_USD_ADDRESS,
+        constants.CHAIN_LINK_USD_ADDRESS,
         BigInt.fromString("99975399"),
         8
       );

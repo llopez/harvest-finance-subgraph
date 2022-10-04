@@ -16,14 +16,7 @@ import {
   assertProtocol,
   mockChainLink,
 } from "./controller-utils";
-import {
-  CHAIN_LINK_CONTRACT_ADDRESS,
-  CHAIN_LINK_USD_ADDRESS,
-} from "../src/utils/prices";
-
-const controllerAddress = Address.fromString(
-  "0x222412af183bceadefd72e4cb1b71f1889953b1c"
-);
+import { constants } from "../src/utils/constants";
 
 describe("Controller", () => {
   afterEach(() => {
@@ -44,9 +37,9 @@ describe("Controller", () => {
       );
 
       mockChainLink(
-        CHAIN_LINK_CONTRACT_ADDRESS,
+        constants.CHAIN_LINK_CONTRACT_ADDRESS,
         inputTokenAddress,
-        CHAIN_LINK_USD_ADDRESS,
+        constants.CHAIN_LINK_USD_ADDRESS,
         BigInt.fromString("99975399"),
         8
       );
@@ -65,7 +58,7 @@ describe("Controller", () => {
       handleAddVaultAndStrategy(call);
 
       assertProtocol(
-        controllerAddress,
+        constants.CONTROLLER_ADDRESS,
         "Harvest Finance",
         "harvest-finance",
         "0.0.1",
@@ -94,7 +87,7 @@ describe("Controller", () => {
         call.block.number,
         BigDecimal.fromString("0"),
         BigInt.fromI32(0),
-        "0x222412af183bceadefd72e4cb1b71f1889953b1c"
+        constants.CONTROLLER_ADDRESS.toHexString()
       );
 
       // Input Token Assertions
