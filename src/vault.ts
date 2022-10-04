@@ -9,7 +9,7 @@ import { Token } from "../generated/schema";
 import { getPricePerToken } from "./utils/prices";
 import { deposits } from "./utils/deposits";
 import { withdraws } from "./utils/withdraws";
-import { updateVaultSnapshots } from "./utils/snapshots";
+import { metrics } from "./utils/metrics";
 
 export function handleWithdraw(event: WithdrawEvent): void {
   const beneficiary = event.params.beneficiary;
@@ -61,7 +61,9 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   vault.save();
 
-  updateVaultSnapshots(vaultAddress, event.block);
+  metrics.updateFinancials(event.block);
+  metrics.updateUsageMetrics(event.block, event.transaction.from);
+  metrics.updateVaultSnapshots(vaultAddress, event.block);
 }
 
 export function handleDeposit(event: DepositEvent): void {
@@ -113,7 +115,9 @@ export function handleDeposit(event: DepositEvent): void {
 
   vault.save();
 
-  updateVaultSnapshots(vaultAddress, event.block);
+  metrics.updateFinancials(event.block);
+  metrics.updateUsageMetrics(event.block, event.transaction.from);
+  metrics.updateVaultSnapshots(vaultAddress, event.block);
 }
 
 function handleMint(event: TransferEvent): void {
@@ -134,7 +138,9 @@ function handleMint(event: TransferEvent): void {
 
   vault.save();
 
-  updateVaultSnapshots(vaultAddress, event.block);
+  metrics.updateFinancials(event.block);
+  metrics.updateUsageMetrics(event.block, event.transaction.from);
+  metrics.updateVaultSnapshots(vaultAddress, event.block);
 }
 
 export function handleTransfer(event: TransferEvent): void {

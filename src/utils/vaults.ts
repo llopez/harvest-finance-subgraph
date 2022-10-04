@@ -66,6 +66,7 @@ export namespace vaults {
     vault.createdBlockNumber = constants.BIG_INT_ZERO;
     vault.totalValueLockedUSD = constants.BIG_DECIMAL_ZERO;
     vault.inputTokenBalance = constants.BIG_INT_ZERO;
+    vault.outputTokenSupply = constants.BIG_INT_ZERO;
     vault.protocol = "";
 
     return vault;
