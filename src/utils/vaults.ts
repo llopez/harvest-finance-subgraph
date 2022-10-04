@@ -1,4 +1,4 @@
-import { Address, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address } from "@graphprotocol/graph-ts";
 import { VaultContract } from "../../generated/Controller/VaultContract";
 import { Vault } from "../../generated/schema";
 import { constants } from "../utils/constants";

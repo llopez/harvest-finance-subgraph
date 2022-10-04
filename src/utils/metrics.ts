@@ -11,7 +11,7 @@ import {
 } from "../../generated/schema";
 
 import { constants } from "./constants";
-import Protocol from "../models/Protocol";
+import { YieldAggregator } from "../../generated/schema";
 
 export namespace metrics {
   function getOrCreateVaultsDailySnapshots(
@@ -25,7 +25,7 @@ export namespace metrics {
 
     if (!vaultSnapshots) {
       vaultSnapshots = new VaultDailySnapshot(id);
-      vaultSnapshots.protocol = constants.PROTOCOL_ID;
+      vaultSnapshots.protocol = constants.PROTOCOL_ID.toHexString();
       vaultSnapshots.vault = vaultId;
 
       vaultSnapshots.totalValueLockedUSD = constants.BIG_DECIMAL_ZERO;
@@ -68,7 +68,7 @@ export namespace metrics {
 
     if (!vaultSnapshots) {
       vaultSnapshots = new VaultHourlySnapshot(id);
-      vaultSnapshots.protocol = constants.PROTOCOL_ID;
+      vaultSnapshots.protocol = constants.PROTOCOL_ID.toHexString();
       vaultSnapshots.vault = vaultId;
 
       vaultSnapshots.totalValueLockedUSD = constants.BIG_DECIMAL_ZERO;
@@ -105,7 +105,9 @@ export namespace metrics {
       account.save();
 
       //Review
-      const protocol = Protocol.load(constants.PROTOCOL_ID);
+      const protocol = YieldAggregator.load(
+        constants.PROTOCOL_ID.toHexString()
+      );
       if (protocol) {
         protocol.cumulativeUniqueUsers += 1;
         protocol.save();
@@ -123,7 +125,7 @@ export namespace metrics {
 
     if (!financialMetrics) {
       financialMetrics = new FinancialsDailySnapshot(id.toString());
-      financialMetrics.protocol = constants.PROTOCOL_ID;
+      financialMetrics.protocol = constants.PROTOCOL_ID.toHexString();
 
       financialMetrics.totalValueLockedUSD = constants.BIG_DECIMAL_ZERO;
       financialMetrics.dailySupplySideRevenueUSD = constants.BIG_DECIMAL_ZERO;
@@ -155,7 +157,7 @@ export namespace metrics {
 
     if (!usageMetrics) {
       usageMetrics = new UsageMetricsDailySnapshot(id);
-      usageMetrics.protocol = constants.PROTOCOL_ID;
+      usageMetrics.protocol = constants.PROTOCOL_ID.toHexString();
 
       usageMetrics.dailyActiveUsers = 0;
       usageMetrics.cumulativeUniqueUsers = 0;
@@ -182,7 +184,7 @@ export namespace metrics {
 
     if (!usageMetrics) {
       usageMetrics = new UsageMetricsHourlySnapshot(metricsID);
-      usageMetrics.protocol = constants.PROTOCOL_ID;
+      usageMetrics.protocol = constants.PROTOCOL_ID.toHexString();
 
       usageMetrics.hourlyActiveUsers = 0;
       usageMetrics.cumulativeUniqueUsers = 0;
@@ -203,9 +205,9 @@ export namespace metrics {
     block: ethereum.Block,
     from: Address
   ): void {
-    const account = getOrCreateAccount(from.toHexString());
+    getOrCreateAccount(from.toHexString());
 
-    const protocol = Protocol.load(constants.PROTOCOL_ID);
+    const protocol = YieldAggregator.load(constants.PROTOCOL_ID.toHexString());
 
     if (!protocol) return;
 
@@ -246,7 +248,7 @@ export namespace metrics {
   }
 
   export function updateFinancials(block: ethereum.Block): void {
-    const protocol = Protocol.load(constants.PROTOCOL_ID);
+    const protocol = YieldAggregator.load(constants.PROTOCOL_ID.toHexString());
 
     if (!protocol) return;
 

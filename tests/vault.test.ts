@@ -16,7 +16,6 @@ import { deposits } from "../src/utils/deposits";
 import { withdraws } from "../src/utils/withdraws";
 import { tokens } from "../src/utils/tokens";
 import { constants } from "../src/utils/constants";
-import { logStore } from "matchstick-as/assembly/store";
 
 const vaultAddress = Address.fromString(
   "0x0000000000000000000000000000000000000001"
@@ -164,10 +163,8 @@ describe("Vault", () => {
           (event.block.timestamp.toI64() / constants.SECONDS_PER_DAY).toString()
         );
 
-      logStore();
-
       assertVaultDailySnapshot(vaultDailySnapshotId, {
-        protocol: constants.PROTOCOL_ID,
+        protocol: constants.PROTOCOL_ID.toHexString(),
         vault: vaultAddress,
         totalValueLockedUSD: vaultStore.totalValueLockedUSD,
         inputTokenBalance: vaultStore.inputTokenBalance,
